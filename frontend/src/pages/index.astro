@@ -5,23 +5,23 @@ import Layout from "../layouts/Layout.astro";
 <Layout title="Barcode Scanner">
   <main>
     <div
+      id="notification"
+      class="hidetime w-full top-0 bg-green-500 text-left text-white p-2 px-3 rounded-b-xl inline-flex items-center justify-center gap-1 hidden z-20 absolute"
+    >
+      <svg
+        class="w-8 h-8"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M3 3h16v2H5v14h14v2H3V3zm18 0h-2v18h2V3zM11 15h2v2h-2v-2zm2-8h-2v6h2V7z"
+          fill="currentColor"></path>
+      </svg>
+    </div>
+    <div
       class="left-1/2 top-6 -translate-x-1/2 w-[calc(100vw-30px)] h-[calc(100dvh-50px)] max-w-[600px] flex flex-col items-center gap-3 relative"
     >
-      <div
-        id="notification"
-        class="hidetime top-20 right-3 bg-green-500 text-left text-white p-2 rounded-xl text-center flex flex-row items-center gap-3 hidden z-20 absolute"
-      >
-        <svg
-          class="w-8 h-8"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M3 3h16v2H5v14h14v2H3V3zm18 0h-2v18h2V3zM11 15h2v2h-2v-2zm2-8h-2v6h2V7z"
-            fill="currentColor"></path>
-        </svg>
-      </div>
       <div class="w-full flex flex-row items-center gap-1">
         <div
           class="w-full rounded-2xl bg-slate-800 p-2 flex flex-row items-center gap-1"
@@ -38,6 +38,21 @@ import Layout from "../layouts/Layout.astro";
           >
             Recibir
           </div>
+        </div>
+        <div
+          id="openCenterSelect"
+          class="p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-center text-white relative"
+        >
+          <svg
+            class="w-10 h-10 scale-75"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M2 2h14v4h6v16H2V2zm18 6h-4v2h2v2h-2v2h2v2h-2v2h2v2h2V8zm-6-4H4v16h2v-2h6v2h2V4zM6 6h2v2H6V6zm6 0h-2v2h2V6zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2z"
+              fill="currentColor"></path>
+          </svg>
         </div>
       </div>
       <div
@@ -77,6 +92,58 @@ import Layout from "../layouts/Layout.astro";
   </main>
 
   <div
+    id="centerSelectModal"
+    class="hidden fadein fixed inset-0 bg-gray-700 bg-opacity-75 flex flex-col items-center justify-between"
+  >
+    <div
+      class="slidedown w-full p-6 bg-gray-900 rounded-b-3xl text-white flex flex-col items-center"
+    >
+      <img
+        src="/DANAscan-logo-complete.png"
+        class="pr-10 w-full max-w-[400px] object-cover"
+      />
+      <div class="mt-6 max-w-[700px] flex flex-col items-start gap-3">
+        <p class="text-xl">
+          Programat i dissenyat per <a
+            class="underline"
+            href="https://www.linkedin.com/in/alejandro-gonz%C3%A1lez-a30727216/"
+            >Alejandro González</a
+          >, agraïments a <a class="underline" href="https://www.iti.es">ITI</a
+          >.
+        </p>
+        <br />
+        <p class="inline-flex items-center">
+          <img src="/flag.png" class="mr-3 w-7" />2024
+        </p>
+      </div>
+    </div>
+
+    <div class="slideup bg-gray-900 rounded-t-3xl p-6 w-full text-white">
+      <h2 class="text-3xl font-bold mb-6">Seleccionar centro</h2>
+      <select
+        id="quantity"
+        name="quantity"
+        class="mb-1 bg-slate-600 border-none rounded-t-2xl rounded-b-md p-2 w-full h-14 text-white relative"
+      ></select>
+      <button
+        id="closeCenterSelect"
+        class="w-full h-14 rounded-t-md rounded-b-2xl bg-green-400 hover:bg-green-500 flex flex-col items-center justify-center"
+      >
+        <svg
+          class="scale-75"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M18 6h2v2h-2V6zm-2 4V8h2v2h-2zm-2 2v-2h2v2h-2zm-2 2h2v-2h-2v2zm-2 2h2v-2h-2v2zm-2 0v2h2v-2H8zm-2-2h2v2H6v-2zm0 0H4v-2h2v2z"
+            fill="currentColor"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div
     id="sendModal"
     class="fadein hidden fixed inset-0 bg-gray-700 bg-opacity-75 flex items-end justify-center"
   >
@@ -107,12 +174,8 @@ import Layout from "../layouts/Layout.astro";
         method="post"
         enctype="application/x-www-form-urlencoded"
       >
-        <select
-          id="quantity2"
-          name="quantity"
-          class="bg-slate-600 border-none rounded-t-2xl rounded-b-md p-2 w-full h-14 text-white relative"
-        ></select>
         <input type="hidden" id="timestamp-input-2" name="timestamp" />
+        <input type="hidden" id="quantity-1" name="quantity" />
         <select
           id="errNotFound"
           name="barcode"
@@ -144,14 +207,10 @@ import Layout from "../layouts/Layout.astro";
       >
         <input type="hidden" id="barcode-input" name="barcode" />
         <input type="hidden" id="timestamp-input" name="timestamp" />
-        <select
-          id="quantity"
-          name="quantity"
-          class="bg-slate-600 border-none rounded-l-2xl rounded-r-md p-2 w-full h-14 text-white relative"
-        ></select>
+        <input type="hidden" id="quantity-2" name="quantity" />
         <button
           type="submit"
-          class="w-16 h-14 rounded-l-md rounded-r-2xl bg-green-400 hover:bg-green-500 flex flex-col items-center justify-center"
+          class="w-full h-14 rounded-2xl bg-green-400 hover:bg-green-500 flex flex-col items-center justify-center"
         >
           <svg
             class="scale-50"
@@ -165,6 +224,10 @@ import Layout from "../layouts/Layout.astro";
           </svg>
         </button>
       </form>
+      <p class="beforesvg mt-3 text-white/30 inline-block items-center">
+        Te encuentras en el centro
+        <span id="centerLocation" class="text-white/60"></span>
+      </p>
     </div>
   </div>
 
@@ -208,9 +271,7 @@ import Layout from "../layouts/Layout.astro";
           target: document.querySelector("#camera"), // Element to show the camera preview
         },
         decoder: {
-          readers: [
-            "code_39_reader",
-          ],
+          readers: ["code_39_reader"],
         },
       },
       function (err) {
@@ -236,6 +297,8 @@ import Layout from "../layouts/Layout.astro";
 
         if (localStorage.getItem("mode") == "1") {
           document.getElementById("sendModal").classList.remove("hidden");
+          document.getElementById("centerLocation").textContent =
+            document.getElementById("quantity").selectedOptions[0].textContent;
 
           // Verify the barcode
           fetch(`http://localhost:3000/verificar-article`, {
@@ -337,22 +400,18 @@ import Layout from "../layouts/Layout.astro";
               });
 
               if (offRouteData.length > 0) {
-                div.innerHTML += `<p class="mt-10 mb-3 font-bold text-xl flex flex-row items-center gap-3"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 2h14v4h6v16H2V2zm18 6h-4v2h2v2h-2v2h2v2h-2v2h2v2h2V8zm-6-4H4v16h2v-2h6v2h2V4zM6 6h2v2H6V6zm6 0h-2v2h2V6zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2z" fill="currentColor"/> </svg> Palets recibidos</p>`;
+                div.innerHTML += `<p class="mt-10 mb-3 font-bold text-xl flex flex-row items-center gap-3"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 2h14v4h6v16H2V2zm18 6h-4v2h2v2h-2v2h2v2h-2v2h2v2h2V8zm-6-4H4v16h2v-2h6v2h2V4zM6 6h2v2H6V6zm6 0h-2v2h2V6zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2z" fill="currentColor"/> </svg>Últimos Palets recibidos</p>`;
               }
 
-              offRouteData.forEach((item) => {
-                if (offRouteData.length == 0) {
-                  return;
-                }
+              const lastTwoOffRouteData = offRouteData.slice(-2);
+
+              lastTwoOffRouteData.forEach((item, index) => {
                 var rounded = "rounded-md";
-                if (offRouteData.length == 1) {
+                if (lastTwoOffRouteData.length == 1) {
                   rounded = "rounded-2xl";
-                } else if (offRouteData.indexOf(item) == 0) {
+                } else if (index == 0) {
                   rounded = "rounded-t-2xl rounded-b-md";
-                } else if (
-                  offRouteData.indexOf(item) ==
-                  offRouteData.length - 1
-                ) {
+                } else if (index == lastTwoOffRouteData.length - 1) {
                   rounded = "rounded-t-md rounded-b-2xl";
                 }
 
@@ -390,7 +449,6 @@ import Layout from "../layouts/Layout.astro";
   // Fetch data for the quantity select element
   document.addEventListener("DOMContentLoaded", (event) => {
     const select = document.getElementById("quantity");
-    const select2 = document.getElementById("quantity2");
 
     // Fetch data for the dropdowns
     fetch(`http://localhost:3000/afegir-centre`, {
@@ -407,11 +465,6 @@ import Layout from "../layouts/Layout.astro";
           option1.text = item.centro;
           select.appendChild(option1);
 
-          const option2 = document.createElement("option");
-          option2.value = item.id;
-          option2.text = item.centro;
-          select2.appendChild(option2);
-
           const deleteOption = document.createElement("option");
           deleteOption.value = item.id;
           deleteOption.text = item.centro;
@@ -421,7 +474,6 @@ import Layout from "../layouts/Layout.astro";
         const savedQuantity = localStorage.getItem("selectedQuantity");
         if (savedQuantity) {
           select.value = savedQuantity;
-          select2.value = savedQuantity;
         }
       })
       .catch((error) => {
@@ -432,11 +484,21 @@ import Layout from "../layouts/Layout.astro";
     const saveSelectedQuantity = (event) => {
       localStorage.setItem("selectedQuantity", event.target.value);
       select.value = event.target.value;
-      select2.value = event.target.value;
+
+      const selectedQuantity = select.value;
+      document.getElementById("quantity-1").value = selectedQuantity;
+      document.getElementById("quantity-2").value = selectedQuantity;
     };
 
+    if (!localStorage.getItem("selectedQuantity")) {
+      document.getElementById("centerSelectModal").classList.remove("hidden");
+    } else {
+      const selectedQuantity = localStorage.getItem("selectedQuantity");
+      document.getElementById("quantity-1").value = selectedQuantity;
+      document.getElementById("quantity-2").value = selectedQuantity;
+    }
+
     select.addEventListener("change", saveSelectedQuantity);
-    select2.addEventListener("change", saveSelectedQuantity);
 
     // Set the mode to send by default
     if (!localStorage.getItem("mode")) {
@@ -468,6 +530,20 @@ import Layout from "../layouts/Layout.astro";
     .getElementById("closeReceive")
     .addEventListener("click", function () {
       document.getElementById("receiveModal").classList.add("hidden");
+    });
+
+  // Open center select modal
+  document
+    .getElementById("openCenterSelect")
+    .addEventListener("click", function () {
+      document.getElementById("centerSelectModal").classList.remove("hidden");
+    });
+
+  // Close center select modal
+  document
+    .getElementById("closeCenterSelect")
+    .addEventListener("click", function () {
+      document.getElementById("centerSelectModal").classList.add("hidden");
     });
 
   // Send or receive data
@@ -592,7 +668,6 @@ import Layout from "../layouts/Layout.astro";
           } else {
             document.getElementById("receiveModal").classList.add("hidden");
           }
-  
         });
     }
   }
@@ -648,7 +723,7 @@ import Layout from "../layouts/Layout.astro";
   }
 
   .hidetime {
-    animation: fadeout 2s 5000ms forwards;
+    animation: slideout 2s 2000ms forwards;
   }
 
   @keyframes fadeout {
@@ -658,5 +733,42 @@ import Layout from "../layouts/Layout.astro";
     to {
       opacity: 0;
     }
+  }
+
+  @keyframes slideout {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-100%);
+    }
+  }
+
+  .slidedown {
+    animation: slide-down 0.3s ease;
+  }
+
+  @keyframes slide-down {
+    from {
+      transform: translateY(-100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<style is:global>
+  .beforesvg::before {
+    content: '';
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6 mr-1" fill="none"><path d="M3 3h16v2H5v14h14v2H3V3zm18 0h-2v18h2V3zM11 15h2v2h-2v-2zm2-8h-2v6h2V7z" fill="currentColor"/></svg>');
+    width: 1.3rem;
+    height: 1.3rem;
+    transform:translate(0, -1px);
+    filter:invert(1);
+    opacity: 0.3;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.15rem; /* Adjust the margin as needed */
   }
 </style>

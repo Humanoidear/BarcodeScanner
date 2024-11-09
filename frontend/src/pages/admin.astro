@@ -20,9 +20,12 @@ import Layout from "../layouts/Layout.astro";
     </svg>
   </div>
   <div class="px-4 py-4 flex flex-row items-center justify-between">
-    <div class="flex flex-col items-start gap-1">
+    <div class="flex flex-row items-center gap-3">
+      <img src="/DANAscan-logo.png" alt="DANAscan" class="h-32 w-28 object-cover" />
+    <div class="opacity-0 sm:opacity-100 flex flex-col items-start gap-1">
       <h1 class="text-3xl text-white font-bold">Panel de administrador</h1>
       <p class="opacity-60 text-white text-lg">DANAscan</p>
+    </div>
     </div>
     <div class="flex flex-row gap-3">
       <div
@@ -486,64 +489,71 @@ import Layout from "../layouts/Layout.astro";
     });
 
   // Hijack the filterButton submit so it doesn't leave the page and instead logs the result given by the server
-  document.getElementById("filterButton").addEventListener("click", async (event) => {
-    event.preventDefault();
-    const product = document.getElementById("product").value;
-    // Get the text inside the select element
-    const productText = document.getElementById("product").options[
-      document.getElementById("product").selectedIndex
-    ].text;
-    const warehouse = document.getElementById("warehouse").value;
-    const warehouseText = document.getElementById("warehouse").options[
-      document.getElementById("warehouse").selectedIndex
-    ].text;
-    const status = document.getElementById("status").value;
-    const before = document.getElementById("before").value;
-    const after = document.getElementById("after").value;
-    const code = localStorage.getItem("adminlogin");
+  document
+    .getElementById("filterButton")
+    .addEventListener("click", async (event) => {
+      event.preventDefault();
+      const product = document.getElementById("product").value;
+      // Get the text inside the select element
+      const productText =
+        document.getElementById("product").options[
+          document.getElementById("product").selectedIndex
+        ].text;
+      const warehouse = document.getElementById("warehouse").value;
+      const warehouseText =
+        document.getElementById("warehouse").options[
+          document.getElementById("warehouse").selectedIndex
+        ].text;
+      const status = document.getElementById("status").value;
+      const before = document.getElementById("before").value;
+      const after = document.getElementById("after").value;
+      const code = localStorage.getItem("adminlogin");
 
-    const response = await fetch(`http://localhost:3000/filtrar`, {
+      const response = await fetch(`http://localhost:3000/filtrar`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         body: `product=${product}&warehouse=${warehouse}&status=${status}&before=${before}&after=${after}&code=${code}`,
-    });
+      });
 
-    const data = await response.json();
-    console.log(data);
+      const data = await response.json();
+      console.log(data);
 
-    // Group the results by warehouse
-    const groupedData = data.reduce((acc, item) => {
+      // Group the results by warehouse
+      const groupedData = data.reduce((acc, item) => {
         if (!acc[item.almacen]) {
-            acc[item.almacen] = { onRoute: 0, arrived: 0, total: 0 };
+          acc[item.almacen] = { onRoute: 0, arrived: 0, total: 0 };
         }
         acc[item.almacen].total += 1;
         if (item.fulfilled === 0) {
-            acc[item.almacen].onRoute += 1;
+          acc[item.almacen].onRoute += 1;
         } else {
-            acc[item.almacen].arrived += 1;
+          acc[item.almacen].arrived += 1;
         }
         return acc;
-    }, {});
+      }, {});
 
-    // Calculate overall totals
-    const overallTotals = Object.values(groupedData).reduce((acc, warehouse) => {
-        acc.onRoute += warehouse.onRoute;
-        acc.arrived += warehouse.arrived;
-        acc.total += warehouse.total;
-        return acc;
-    }, { onRoute: 0, arrived: 0, total: 0 });
+      // Calculate overall totals
+      const overallTotals = Object.values(groupedData).reduce(
+        (acc, warehouse) => {
+          acc.onRoute += warehouse.onRoute;
+          acc.arrived += warehouse.arrived;
+          acc.total += warehouse.total;
+          return acc;
+        },
+        { onRoute: 0, arrived: 0, total: 0 }
+      );
 
-    // Display the results
-    const results = document.getElementById("filterResults");
-    results.innerHTML = "";
-    results.innerHTML = `
+      // Display the results
+      const results = document.getElementById("filterResults");
+      results.innerHTML = "";
+      results.innerHTML = `
         <hr class="w-full border-white/10 my-6" />
         <h2 class="text-white/30 text-2xl font-medium mb-4">Mostrando resultados para <span class="font-bold text-white">${product ? productText : "todos los productos"}</span> en <span class="font-bold text-white">${warehouse ? warehouseText : "todos los almacenes"}</span> ${status ? `con estado <span class="font-bold text-white">${status === "0" ? "en ruta" : status === "1" ? "recibido" : "en ruta y recibido"}` : ", <span class='font-bold text-white'>en cualquier estado</span>"}</span> ${before ? `antes de <span class="font-bold text-white">${before}</span>` : ""} ${after ? `después de <span class="font-bold text-white">${after}</span>` : ""}</h2>
     `;
 
-    if (data.length == 0) {
+      if (data.length == 0) {
         results.innerHTML += `
             <div class="mt-28 flex flex-col items-center gap-3 opacity-60">
                 <svg class="w-16 h-16 text-white" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M3 3h16v2H5v14h14v2H3V3zm18 0h-2v18h2V3zM11 15h2v2h-2v-2zm2-8h-2v6h2V7z" fill="currentColor"/> </svg>
@@ -551,10 +561,10 @@ import Layout from "../layouts/Layout.astro";
             </div>
         `;
         return;
-    }
+      }
 
-    // Display overall totals if there is more than one warehouse
-    if (Object.keys(groupedData).length > 1) {
+      // Display overall totals if there is more than one warehouse
+      if (Object.keys(groupedData).length > 1) {
         const overallDiv = document.createElement("div");
         overallDiv.classList.add("overall-totals");
         overallDiv.innerHTML = `
@@ -564,20 +574,28 @@ import Layout from "../layouts/Layout.astro";
                     <p><span class="opacity-60">${overallTotals.total}</span> <span class="opacity-30">Palets totales</span></p>
                 </div>
                 <div class="flex flex-row items-center gap-6">
-                    ${status === "" || status === "0" ? `
+                    ${
+                      status === "" || status === "0"
+                        ? `
                     <p class="w-full flex flex-col items-center gap-1"><svg class="w-16 h-16" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 2h2v2h2v2h-2v10H8V6H6V4h2V2zM4 8V6h2v2H4zm2 10v2H4v2H2V8h2v10h2zm0 0h2v-2H6v2zm6 0h-2v-2h2v2zm2-10V6h-2v2h2zm2 0h-2v10h-2v2h2v2h2v-2h2v-2h2v-2h2V2h-2v2h-2v2h-2v2zm0 0h2V6h2v10h-2v2h-2V8z" fill="currentColor"/> </svg> <span class="flex flex-row gap-3"><span class="text-5xl font-extrabold">${overallTotals.onRoute}</span><span class="flex flex-col items-start"><span class="opacity-60">Palets</span><span>en ruta</span></span></p>
-                    ` : ""}
-                    ${status === "" || status === "1" ? `
+                    `
+                        : ""
+                    }
+                    ${
+                      status === "" || status === "1"
+                        ? `
                     <p class="w-full flex flex-col items-center gap-1"><svg class="w-16 h-16" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 2h14v4h6v16H2V2zm18 6h-4v2h2v2h-2v2h2v2h-2v2h2v2h2V8zm-6-4H4v16h2v-2h6v2h2V4zM6 6h2v2H6V6zm6 0h-2v2h2V6zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2z" fill="currentColor"/> </svg> <span class="flex flex-row gap-3"><span class="text-5xl font-extrabold">${overallTotals.arrived}</span><span class="flex flex-col items-start"><span class="opacity-60">Palets</span><span>recibidos</span></span></p>
-                    ` : ""}
+                    `
+                        : ""
+                    }
                 </div>
             </div>
         `;
         results.appendChild(overallDiv);
         results.innerHTML += "<hr class='w-full border-white/10 my-6' />";
-    }
+      }
 
-    for (const [warehouse, counts] of Object.entries(groupedData)) {
+      for (const [warehouse, counts] of Object.entries(groupedData)) {
         const warehouseDiv = document.createElement("div");
         warehouseDiv.classList.add("warehouse-group");
         warehouseDiv.innerHTML = `
@@ -587,18 +605,26 @@ import Layout from "../layouts/Layout.astro";
                     <p><span class="opacity-60">${counts.total}</span> <span class="opacity-30">Palets totales</span></p>
                 </div>
                 <div class="flex flex-row items-center gap-6">
-                    ${status === "" || status === "0" ? `
+                    ${
+                      status === "" || status === "0"
+                        ? `
                     <p class="w-full flex flex-col items-center gap-1"><svg class="w-16 h-16" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 2h2v2h2v2h-2v10H8V6H6V4h2V2zM4 8V6h2v2H4zm2 10v2H4v2H2V8h2v10h2zm0 0h2v-2H6v2zm6 0h-2v-2h2v2zm2-10V6h-2v2h2zm2 0h-2v10h-2v2h2v2h2v-2h2v-2h2v-2h2V2h-2v2h-2v2h-2v2zm0 0h2V6h2v10h-2v2h-2V8z" fill="currentColor"/> </svg> <span class="flex flex-row gap-3"><span class="text-5xl font-extrabold">${counts.onRoute}</span><span class="flex flex-col items-start"><span class="opacity-60">Palets</span><span>en ruta</span></span></p>
-                    ` : ""}
-                    ${status === "" || status === "1" ? `
+                    `
+                        : ""
+                    }
+                    ${
+                      status === "" || status === "1"
+                        ? `
                     <p class="w-full flex flex-col items-center gap-1"><svg class="w-16 h-16" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 2h14v4h6v16H2V2zm18 6h-4v2h2v2h-2v2h2v2h-2v2h2v2h2V8zm-6-4H4v16h2v-2h6v2h2V4zM6 6h2v2H6V6zm6 0h-2v2h2V6zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2z" fill="currentColor"/> </svg> <span class="flex flex-row gap-3"><span class="text-5xl font-extrabold">${counts.arrived}</span><span class="flex flex-col items-start"><span class="opacity-60">Palets</span><span>recibidos</span></span></p>
-                    ` : ""}
+                    `
+                        : ""
+                    }
                 </div>
             </div>
         `;
         results.appendChild(warehouseDiv);
-    }
-});
+      }
+    });
 </script>
 
 <script is:inline>
