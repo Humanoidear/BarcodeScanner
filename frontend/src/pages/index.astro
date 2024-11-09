@@ -1,0 +1,730 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Barcode Scanner">
+  <main>
+    <div
+      class="left-1/2 top-6 -translate-x-1/2 w-[calc(100vw-30px)] h-[calc(100dvh-50px)] max-w-[600px] flex flex-col items-center gap-3 relative"
+    >
+      <div
+        id="notification"
+        class="hidetime top-20 right-3 bg-green-500 text-left text-white p-2 rounded-xl text-center flex flex-row items-center gap-3 hidden z-20 absolute"
+      >
+        <svg
+          class="w-8 h-8"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M3 3h16v2H5v14h14v2H3V3zm18 0h-2v18h2V3zM11 15h2v2h-2v-2zm2-8h-2v6h2V7z"
+            fill="currentColor"></path>
+        </svg>
+      </div>
+      <div class="w-full flex flex-row items-center gap-1">
+        <div
+          class="w-full rounded-2xl bg-slate-800 p-2 flex flex-row items-center gap-1"
+        >
+          <div
+            id="send"
+            class="w-1/2 p-2 rounded-l-xl rounded-r-md text-center text-white relative"
+          >
+            Enviar
+          </div>
+          <div
+            id="receive"
+            class="w-1/2 p-2 rounded-l-md rounded-r-xl text-center text-white relative"
+          >
+            Recibir
+          </div>
+        </div>
+        <div
+          id="openSettings"
+          class="p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-center text-white relative"
+        >
+          <svg
+            class="w-10 h-10 scale-75"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M8 3h8v4h6v14H2V7h6V3zm2 4h4V5h-4v2zM4 9v10h16V9H4z"
+              fill="currentColor"></path>
+          </svg>
+        </div>
+      </div>
+      <div
+        id="camera"
+        class="w-full h-full rounded-2xl border-2 border-white/20 inline-block overflow-hidden"
+      >
+        <div class="w-10 h-10 top-24 right-6 text-white z-0 absolute">
+          <svg
+            class="spinner w-10 h-10"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M13 2h-2v6h2V2zm0 14h-2v6h2v-6zm9-5v2h-6v-2h6zM8 13v-2H2v2h6zm7-6h2v2h-2V7zm4-2h-2v2h2V5zM9 7H7v2h2V7zM5 5h2v2H5V5zm10 12h2v2h2v-2h-2v-2h-2v2zm-8 0v-2h2v2H7v2H5v-2h2z"
+              fill="currentColor"></path>
+          </svg>
+        </div>
+      </div>
+      <button
+        id="capture"
+        class="w-full py-6 font-bold text-center text-white bg-blue-400 hover:bg-blue-500 rounded-2xl flex flex-col items-center"
+      >
+        <svg
+          id="capture-icon"
+          class="w-10 h-10"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M9 3H7v2H2v16h20V5h-5V3H9zm8 4h3v12H4V7h5V5h6v2h2zm-7 2h4v2h-4V9zm4 6h-4v2h4v-2h2v-4h-2v4zm-6-4h2v4H8v-4z"
+            fill="currentColor"></path>
+        </svg>
+      </button>
+    </div>
+  </main>
+
+  <div
+    id="sendModal"
+    class="fadein hidden fixed inset-0 bg-gray-700 bg-opacity-75 flex items-end justify-center"
+  >
+    <button
+      id="closeSend"
+      class="top-[25px] right-[15px] w-14 h-14 bg-red-400 text-white rounded-2xl absolute"
+      ><svg
+        class="scale-75"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z"
+          fill="currentColor"></path>
+      </svg></button
+    >
+    <div class="slideup bg-gray-900 rounded-t-3xl p-6 w-full text-white">
+      <div
+        id="barcode-result"
+        class="mb-6 w-full text-white flex flex-col items-center gap-1"
+      >
+      </div>
+      <form
+        id="errNotFound-send-form"
+        class="w-full flex flex-col items-center gap-1 hidden relative"
+        action="http://localhost:3000/upload"
+        method="post"
+        enctype="application/x-www-form-urlencoded"
+      >
+        <select
+          id="quantity2"
+          name="quantity"
+          class="bg-slate-600 border-none rounded-t-2xl rounded-b-md p-2 w-full h-14 text-white relative"
+        ></select>
+        <input type="hidden" id="timestamp-input-2" name="timestamp" />
+        <select
+          id="errNotFound"
+          name="barcode"
+          class="mb-6 bg-slate-600 border-none rounded-t-md rounded-b-2xl p-2 w-full h-14 text-white relative"
+        >
+        </select>
+        <button
+          type="submit"
+          class="w-full h-14 rounded-2xl bg-green-400 hover:bg-green-500 flex flex-col items-center justify-center"
+        >
+          <svg
+            class="scale-75 invert"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M5 3H3v18h18V3H5zm0 2h14v14H5V5zm4 7H7v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2H9v-2z"
+              fill="currentColor"></path>
+          </svg>
+        </button>
+      </form>
+      <form
+        id="send-form"
+        class="w-full flex flex-row items-center gap-1 relative"
+        action="http://localhost:3000/upload"
+        method="post"
+        enctype="application/x-www-form-urlencoded"
+      >
+        <input type="hidden" id="barcode-input" name="barcode" />
+        <input type="hidden" id="timestamp-input" name="timestamp" />
+        <select
+          id="quantity"
+          name="quantity"
+          class="bg-slate-600 border-none rounded-l-2xl rounded-r-md p-2 w-full h-14 text-white relative"
+        ></select>
+        <button
+          type="submit"
+          class="w-16 h-14 rounded-l-md rounded-r-2xl bg-green-400 hover:bg-green-500 flex flex-col items-center justify-center"
+        >
+          <svg
+            class="scale-75 invert"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M5 3H3v18h18V3H5zm0 2h14v14H5V5zm4 7H7v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2H9v-2z"
+              fill="currentColor"></path>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div
+    id="receiveModal"
+    class="fadein hidden fixed inset-0 bg-gray-700 bg-opacity-75 flex items-end justify-center"
+  >
+    <button
+      id="closeReceive"
+      class="top-[25px] right-[15px] w-14 h-14 bg-red-400 text-white rounded-2xl absolute"
+      ><svg
+        class="scale-75"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z"
+          fill="currentColor"></path>
+      </svg></button
+    >
+    <div class="slideup bg-gray-900 rounded-t-3xl p-6 w-full text-white">
+      <p class="text-xl font-bold mb-6" id="receiveNum"></p>
+      <div id="receiveList" class="flex flex-col gap-1"></div>
+    </div>
+  </div>
+
+  <div
+    id="settingsModal"
+    class="fadein hidden fixed inset-0 bg-gray-700 bg-opacity-75 flex items-end justify-center"
+  >
+    <button
+      id="closeSettings"
+      class="top-[25px] right-[15px] w-14 h-14 bg-red-400 text-white rounded-2xl absolute"
+      ><svg
+        class="scale-75"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z"
+          fill="currentColor"></path>
+      </svg></button
+    >
+    <div class="slideup bg-gray-900 rounded-t-3xl p-6 w-full">
+      <div class="mb-7 text-white flex flex-col items-center gap-3">
+        <svg
+          class="w-16 h-16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M8 3h8v4h6v14H2V7h6V3zm2 4h4V5h-4v2zM4 9v10h16V9H4z"
+            fill="currentColor"></path>
+        </svg>
+        <h3 class="text-xl text-white text-2xl font-bold">Parámetros</h3>
+      </div>
+      <h3 class="mb-3 text-xl text-white font-semibold">Añadir centro</h3>
+      <form
+        action="http://localhost:3000/afegir-centre"
+        method="post"
+        enctype="application/x-www-form-urlencoded"
+      >
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="Nom del centre"
+          class="w-full p-2 mb-4 border rounded"
+        />
+        <button
+          type="submit"
+          class="w-full py-2 bg-green-600 text-white rounded">Submit</button
+        >
+      </form>
+      <h3 class="mt-6 mb-3 text-xl text-white font-semibold">
+        Eliminar centro
+      </h3>
+      <form
+        action="http://localhost:3000/esborrar-centre"
+        method="post"
+        enctype="application/x-www-form-urlencoded"
+      >
+        <select id="delete" name="delete" class="w-full p-2 mb-4 border rounded"
+        ></select>
+        <button type="submit" class="w-full py-2 bg-red-600 text-white rounded"
+          >Submit</button
+        >
+      </form>
+      <h3 class="mt-6 mb-3 text-xl text-white font-semibold">
+        Añadir artículo
+      </h3>
+      <form
+        action="http://localhost:3000/afegir-article"
+        method="post"
+        enctype="application/x-www-form-urlencoded"
+      >
+        <input
+          type="text"
+          id="barcode"
+          name="barcode"
+          placeholder="Codi de barres"
+          class="w-full p-2 mb-4 border rounded"
+        />
+        <input
+          type="text"
+          id="article"
+          name="article"
+          placeholder="Nom de l'article"
+          class="w-full p-2 mb-4 border rounded"
+        />
+        <button type="submit" class="w-full py-2 bg-red-600 text-white rounded"
+          >Submit</button
+        >
+      </form>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import Quagga from "quagga";
+
+  // Function to initialize and start the Quagga scanner
+  function startScanner() {
+    Quagga.init(
+      {
+        inputStream: {
+          name: "Live",
+          type: "LiveStream",
+          target: document.querySelector("#camera"), // Element to show the camera preview
+        },
+        decoder: {
+          readers: [
+            "code_128_reader",
+            "ean_reader",
+            "ean_8_reader",
+            "upc_reader",
+            "upc_e_reader",
+          ],
+        },
+      },
+      function (err) {
+        if (err) {
+          console.error(err);
+          alert("Error initializing the scanner: " + err.message);
+          return;
+        }
+        Quagga.start();
+      }
+    );
+  }
+
+  // Start the scanner when the page loads
+  window.addEventListener("load", startScanner);
+
+  // Capture barcode when the button is clicked
+  document.getElementById("capture").addEventListener("click", function () {
+    Quagga.onDetected(function (result) {
+      if (result && result.codeResult && result.codeResult.code) {
+        const barcode = result.codeResult.code;
+        const timestamp = new Date().toISOString();
+
+        if (localStorage.getItem("mode") == "1") {
+          document.getElementById("sendModal").classList.remove("hidden");
+
+          // Verify the barcode
+          fetch(`http://localhost:3000/verificar-article`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `barcode=${barcode}`,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.length == 0) {
+                document.getElementById("send-form").classList.add("hidden");
+                document.getElementById("barcode-result").innerHTML =
+                  `<h2 class="mb-0 w-full text-3xl font-bold">No se ha encontrado el artículo</h2><span class="w-full text-lg opacity-30 font-normal">( ${barcode} )</span><br><p class="w-full">Verifique que se ha escaneado correctamente, o elija un artículo de la lista.</p>`;
+                document
+                  .getElementById("errNotFound-send-form")
+                  .classList.remove("hidden");
+
+                fetch(`http://localhost:3000/verificar-article`)
+                  .then((response) => response.json())
+                  .then((data) => {
+                    data.forEach((item) => {
+                      const option = document.createElement("option");
+                      option.value = item.lectura;
+                      option.text = item.articulo + " - " + item.lectura;
+                      document
+                        .getElementById("errNotFound")
+                        .appendChild(option);
+                    });
+                  });
+
+                document.getElementById("timestamp-input-2").value = timestamp;
+                return;
+              }
+              console.log(data);
+              document.getElementById("barcode-input").value = barcode;
+              document.getElementById("timestamp-input").value = timestamp;
+              document.getElementById("barcode-result").innerHTML =
+                `<h2 class="mb-0 text-3xl font-bold">${data[0].articulo}</h2><span class="text-lg opacity-30 font-normal">( ${barcode} )</span>`;
+            });
+        }
+        document.querySelector("#barcode-input").value = barcode;
+        document.querySelector("#timestamp-input").value = timestamp;
+
+        if (localStorage.getItem("mode") == "2") {
+          fetch(`http://localhost:3000/verificar`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `barcode=${barcode}`,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              document
+                .getElementById("receiveModal")
+                .classList.remove("hidden");
+
+              if (data.length == 0) {
+                document.getElementById("receiveNum").textContent =
+                  "No existen palets con el código " + barcode;
+                return;
+              }
+              document.getElementById("receiveNum").innerHTML =
+                "Existen " +
+                data.length +
+                " palets de " +
+                data[0].lectura_nombre +
+                " <span class='text-lg opacity-60)'>(" +
+                barcode +
+                ")</span>.";
+
+              const receiveList = document.getElementById("receiveList");
+              receiveList.innerHTML = "";
+              console.log(data);
+              // divide the data if it has item.fulfilled as 0 or 1
+              const onRouteData = data.filter((item) => item.fulfilled == 0);
+              const offRouteData = data.filter((item) => item.fulfilled == 1);
+              const div = document.getElementById("receiveList");
+
+              if (onRouteData.length > 0) {
+                div.innerHTML += `<p class="mb-3 font-bold text-xl flex flex-row items-center gap-3"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 2h2v2h2v2h-2v10H8V6H6V4h2V2zM4 8V6h2v2H4zm2 10v2H4v2H2V8h2v10h2zm0 0h2v-2H6v2zm6 0h-2v-2h2v2zm2-10V6h-2v2h2zm2 0h-2v10h-2v2h2v2h2v-2h2v-2h2v-2h2V2h-2v2h-2v2h-2v2zm0 0h2V6h2v10h-2v2h-2V8z" fill="currentColor"/> </svg> Palets en ruta</p>`;
+              }
+
+              onRouteData.forEach((item) => {
+                var rounded = "rounded-md";
+                if (onRouteData.length == 1) {
+                  rounded = "rounded-2xl";
+                } else if (onRouteData.indexOf(item) == 0) {
+                  rounded = "rounded-t-2xl rounded-b-md";
+                } else if (
+                  onRouteData.indexOf(item) ==
+                  onRouteData.length - 1
+                ) {
+                  rounded = "rounded-t-md rounded-b-2xl";
+                }
+
+                item.timestamp = new Date(item.timestamp).toLocaleString();
+                div.innerHTML += `<div class="bg-slate-700 ${rounded} px-5 py-3 text-white flex flex-col sm:flex-row items-center justify-between"><span>${item.almacen}</span><span class="flex flex-row items-center gap-1"><span class="px-3 py-1 bg-slate-600 rounded-md">${item.timestamp}</span><div onclick="deletePalet(${item.id});"><svg class="ml-3 w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z" fill="currentColor"/> </svg></div><div onclick="acceptPalet(${item.id});"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M18 6h2v2h-2V6zm-2 4V8h2v2h-2zm-2 2v-2h2v2h-2zm-2 2h2v-2h-2v2zm-2 2h2v-2h-2v2zm-2 0v2h2v-2H8zm-2-2h2v2H6v-2zm0 0H4v-2h2v2z" fill="currentColor"/> </svg></div></span></div>`;
+              });
+
+              if (offRouteData.length > 0) {
+                div.innerHTML += `<p class="mt-10 mb-3 font-bold text-xl flex flex-row items-center gap-3"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 2h14v4h6v16H2V2zm18 6h-4v2h2v2h-2v2h2v2h-2v2h2v2h2V8zm-6-4H4v16h2v-2h6v2h2V4zM6 6h2v2H6V6zm6 0h-2v2h2V6zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2z" fill="currentColor"/> </svg> Palets recibidos</p>`;
+              }
+
+              offRouteData.forEach((item) => {
+                if (offRouteData.length == 0) {
+                  return;
+                }
+                var rounded = "rounded-md";
+                if (offRouteData.length == 1) {
+                  rounded = "rounded-2xl";
+                } else if (offRouteData.indexOf(item) == 0) {
+                  rounded = "rounded-t-2xl rounded-b-md";
+                } else if (
+                  offRouteData.indexOf(item) ==
+                  offRouteData.length - 1
+                ) {
+                  rounded = "rounded-t-md rounded-b-2xl";
+                }
+
+                item.timestamp = new Date(item.timestamp).toLocaleString();
+                item.timestamp_recepcion = new Date(
+                  item.timestamp_recepcion
+                ).toLocaleString();
+                div.innerHTML += `<div class="bg-slate-700 ${rounded} px-5 py-3 text-white flex flex-col sm:flex-row items-center justify-between"><span>${item.almacen}</span><span class="flex flex-row items-center gap-1"><span class="px-3 py-1 bg-slate-600 rounded-md"><span class="flex flex-row items-center gap-1">${item.timestamp} <svg class="w-5 h-5 mx-3" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M4 11v2h12v2h2v-2h2v-2h-2V9h-2v2H4zm10-4h2v2h-2V7zm0 0h-2V5h2v2zm0 10h2v-2h-2v2zm0 0h-2v2h2v-2z" fill="currentColor"/> </svg> ${item.timestamp_recepcion}</span></span><div onclick="deletePalet(${item.id});"><svg class="ml-3 w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z" fill="currentColor"/> </svg></div></div>`;
+              });
+            });
+        }
+
+        // Change the capture button icon to red and allow reshoot
+        const captureButton = document.getElementById("capture");
+        const captureIcon = document.getElementById("capture-icon");
+        captureButton.classList.remove("bg-blue-400", "hover:bg-blue-500");
+        captureButton.classList.add("bg-red-400", "hover:bg-red-500");
+        captureIcon.innerHTML =
+          '<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 4h2v2H8V4zm10 6V8H8V6H6v2H4v2h2v2h2v2h2v-2H8v-2h10zm0 8v-8h2v8h-2zm0 0v2h-6v-2h6z" fill="currentColor"/> </svg>';
+
+        // Allow reshoot
+        captureButton.addEventListener(
+          "click",
+          function () {
+            window.location.href = window.location.pathname;
+          },
+          { once: true }
+        );
+
+        Quagga.stop();
+      }
+    });
+  });
+
+  // Fetch data for the quantity select element
+  document.addEventListener("DOMContentLoaded", (event) => {
+    const select = document.getElementById("quantity");
+    const select2 = document.getElementById("quantity2");
+    const deleteSelect = document.getElementById("delete");
+
+    // Fetch data for the dropdowns
+    fetch(`http://localhost:3000/afegir-centre`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        data.forEach((item) => {
+          const option1 = document.createElement("option");
+          option1.value = item.id;
+          option1.text = item.centro + " - " + item.id;
+          select.appendChild(option1);
+
+          const option2 = document.createElement("option");
+          option2.value = item.id;
+          option2.text = item.centro + " - " + item.id;
+          select2.appendChild(option2);
+
+          const deleteOption = document.createElement("option");
+          deleteOption.value = item.id;
+          deleteOption.text = item.centro + " - " + item.id;
+          deleteSelect.appendChild(deleteOption);
+        });
+
+        // Set the dropdown to the value stored in localStorage
+        const savedQuantity = localStorage.getItem("selectedQuantity");
+        if (savedQuantity) {
+          select.value = savedQuantity;
+          select2.value = savedQuantity;
+        }
+
+        const savedDelete = localStorage.getItem("selectedDelete");
+        if (savedDelete) {
+          deleteSelect.value = savedDelete;
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching data for dropdowns:", error);
+      });
+
+    // Save the selected value in localStorage when an option is selected
+    const saveSelectedQuantity = (event) => {
+      localStorage.setItem("selectedQuantity", event.target.value);
+      select.value = event.target.value;
+      select2.value = event.target.value;
+    };
+
+    select.addEventListener("change", saveSelectedQuantity);
+    select2.addEventListener("change", saveSelectedQuantity);
+
+    deleteSelect.addEventListener("change", (event) => {
+      localStorage.setItem("selectedDelete", event.target.value);
+    });
+
+    // Set the mode to send by default
+    if (!localStorage.getItem("mode")) {
+      localStorage.setItem("mode", "1");
+    }
+
+    if (localStorage.getItem("mode") == "1") {
+      mode1();
+    } else {
+      mode2();
+    }
+
+    // Check for notifications in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const notification = urlParams.get("message");
+    if (notification) {
+      document.getElementById("notification").innerHTML += notification;
+      document.getElementById("notification").classList.remove("hidden");
+    }
+  });
+
+  // Open and close settings modal
+  document
+    .getElementById("openSettings")
+    .addEventListener("click", function () {
+      document.getElementById("settingsModal").classList.remove("hidden");
+    });
+
+  document
+    .getElementById("closeSettings")
+    .addEventListener("click", function () {
+      document.getElementById("settingsModal").classList.add("hidden");
+    });
+
+  // Close send modal
+  document.getElementById("closeSend").addEventListener("click", function () {
+    document.getElementById("sendModal").classList.add("hidden");
+  });
+
+  // Close receive modal
+  document
+    .getElementById("closeReceive")
+    .addEventListener("click", function () {
+      document.getElementById("receiveModal").classList.add("hidden");
+    });
+
+  // Send or receive data
+  document.getElementById("send").addEventListener("click", function () {
+    localStorage.setItem("mode", "1");
+    mode1();
+  });
+
+  document.getElementById("receive").addEventListener("click", function () {
+    localStorage.setItem("mode", "2");
+    mode2();
+  });
+
+  function mode1() {
+    document.getElementById("send").classList.remove("bg-slate-700");
+    document.getElementById("send").classList.add("bg-green-500");
+    document.getElementById("receive").classList.remove("bg-green-500");
+    document.getElementById("receive").classList.add("bg-slate-700");
+  }
+
+  function mode2() {
+    document.getElementById("receive").classList.remove("bg-slate-700");
+    document.getElementById("receive").classList.add("bg-green-500");
+    document.getElementById("send").classList.remove("bg-green-500");
+    document.getElementById("send").classList.add("bg-slate-700");
+  }
+</script>
+
+<script is:inline>
+  function deletePalet(id) {
+    if (confirm("Are you sure you want to delete this palet?")) {
+      fetch(`http://localhost:3000/esborrar-palet`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `id=${id}`,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          document.getElementById("receiveModal").classList.add("hidden");
+        });
+    }
+  }
+
+  function acceptPalet(id) {
+    if (confirm("Are you sure you want to accept this palet?")) {
+      fetch(`http://localhost:3000/acceptar-palet`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `id=${id}`,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          document.getElementById("receiveModal").classList.add("hidden");
+        });
+    }
+  }
+</script>
+
+<style is:global>
+  video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    z-index: 1;
+    position: relative;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .slideup {
+    animation: slide-up 0.3s ease;
+  }
+
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .fadein {
+    animation: fadein 0.3s ease forwards;
+  }
+
+  @keyframes fadein {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .spinner {
+    animation: spin 5s linear infinite;
+  }
+
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .hidetime {
+    animation: fadeout 2s 5000ms forwards;
+  }
+
+  @keyframes fadeout {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+</style>
