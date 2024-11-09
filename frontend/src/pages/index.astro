@@ -154,7 +154,7 @@ import Layout from "../layouts/Layout.astro";
           class="w-16 h-14 rounded-l-md rounded-r-2xl bg-green-400 hover:bg-green-500 flex flex-col items-center justify-center"
         >
           <svg
-            class="scale-75 invert"
+            class="scale-50"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -404,17 +404,17 @@ import Layout from "../layouts/Layout.astro";
         data.forEach((item) => {
           const option1 = document.createElement("option");
           option1.value = item.id;
-          option1.text = item.centro + " - " + item.id;
+          option1.text = item.centro;
           select.appendChild(option1);
 
           const option2 = document.createElement("option");
           option2.value = item.id;
-          option2.text = item.centro + " - " + item.id;
+          option2.text = item.centro;
           select2.appendChild(option2);
 
           const deleteOption = document.createElement("option");
           deleteOption.value = item.id;
-          deleteOption.text = item.centro + " - " + item.id;
+          deleteOption.text = item.centro;
         });
 
         // Set the dropdown to the value stored in localStorage
