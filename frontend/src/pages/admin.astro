@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Admin | Barcode Scanner" />
-<main>
+<main class="h-screen left-1/2 -translate-x-1/2 max-w-[1300px] relative">
   <div
     id="notification"
     class="hidetime top-20 right-3 bg-green-500 text-left text-white p-2 rounded-xl text-center flex flex-row items-center gap-3 hidden z-20 absolute"
@@ -19,43 +19,170 @@ import Layout from "../layouts/Layout.astro";
         fill="currentColor"></path>
     </svg>
   </div>
-  <div
-    id="openSettings"
-    class="p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-center text-white relative"
-  >
-    <svg
-      class="w-10 h-10 scale-75"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-    >
-      <path
-        d="M8 3h8v4h6v14H2V7h6V3zm2 4h4V5h-4v2zM4 9v10h16V9H4z"
-        fill="currentColor"></path>
-    </svg>
+  <div class="px-4 py-4 flex flex-row items-center justify-between">
+    <div class="flex flex-col items-start gap-1">
+      <h1 class="text-3xl text-white font-bold">Panel de administrador</h1>
+      <p class="opacity-60 text-white text-lg">DANAscan</p>
+    </div>
+    <div class="flex flex-row gap-3">
+      <div
+        id="openSettings"
+        class="p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-center text-white relative"
+      >
+        <svg
+          class="w-10 h-10 scale-75"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M3 3h8v10H3V3zm2 2v6h4V5H5zm8-2h8v6h-8V3zm2 2v2h4V5h-4zm-2 6h8v10h-8V11zm2 2v6h4v-6h-4zM3 15h8v6H3v-6zm2 2v2h4v-2H5z"
+            fill="currentColor"></path>
+        </svg>
+      </div>
+      <div
+        id="openPassword"
+        class="p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-center text-white relative"
+      >
+        <svg
+          class="w-10 h-10 scale-75"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M4 3h18v18h-8v-2h6V5H4v4H2V3h2zm0 16H2v2h2v-2zm-2-4h4v2H2v-2zm8-4H2v2h8v8h2V11h-2zm-4 4h2v6H6v-6z"
+            fill="currentColor"></path>
+        </svg>
+      </div>
+    </div>
   </div>
+
   <div
-    id="openPassword"
-    class="p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-center text-white relative"
+    class="px-4 py-4 flex flex-col xl:flex-row items-center justify-between xl:items-end gap-1"
   >
-    <svg
-      class="w-10 h-10 scale-75"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
+    <div class="w-full flex flex-col items-start">
+      <label
+        for="expirationToggle"
+        class="mb-1 block text-sm font-medium text-gray-700"
+        >Tipo de producto</label
+      >
+      <select
+        id="product"
+        name="product"
+        class="block w-full px-3 py-4 pt-5 mb-1 bg-slate-300 rounded-2xl xl:rounded-l-2xl xl:rounded-r-md border-none"
+      >
+        <option value="">Todos</option>
+      </select>
+    </div>
+    <div class="w-full flex flex-col items-start">
+      <label
+        for="expirationToggle"
+        class="mb-1 block text-sm font-medium text-gray-700">Almacén</label
+      >
+      <select
+        id="warehouse"
+        name="warehouse"
+        class="block w-full px-3 py-4 pt-5 mb-1 bg-slate-300 rounded-2xl xl:rounded-md border-none"
+      >
+        <option value="">Todos</option>
+      </select>
+    </div>
+    <div class="w-full flex flex-col items-start">
+      <label
+        for="expirationToggle"
+        class="mb-1 block text-sm font-medium text-gray-700"
+        >Estado de envío</label
+      >
+      <select
+        id="status"
+        name="status"
+        class="block w-full px-3 py-4 pt-5 mb-1 bg-slate-300 rounded-2xl xl:rounded-md border-none"
+      >
+        <option value="">Todos</option>
+        <option value="0">En ruta</option>
+        <option value="1">Recibido</option>
+      </select>
+    </div>
+    <div class="w-full flex flex-col items-start">
+      <label
+        for="expirationToggle"
+        class="mb-1 block text-sm font-medium text-gray-700">Antes de</label
+      >
+      <input
+        type="date"
+        id="before"
+        name="before"
+        class="block w-full px-3 py-4 mb-1 bg-slate-300 rounded-2xl xl:rounded-md border-none"
+      />
+    </div>
+    <div class="w-full flex flex-col items-start">
+      <label
+        for="expirationToggle"
+        class="mb-1 block text-sm font-medium text-gray-700">Después de</label
+      >
+      <input
+        type="date"
+        id="after"
+        name="after"
+        class="block w-full px-3 py-4 mb-1 bg-slate-300 rounded-2xl xl:rounded-md border-none"
+      />
+    </div>
+    <button
+      id="filterButton"
+      class="block w-full px-3 py-4 mt-0 xl:mt-6 mb-1 bg-blue-600 text-white rounded-2xl xl:rounded-l-md xl:rounded-r-2xl"
+      >Filtrar</button
     >
-      <path
-        d="M8 3h8v4h6v14H2V7h6V3zm2 4h4V5h-4v2zM4 9v10h16V9H4z"
-        fill="currentColor"></path>
-    </svg>
+  </div>
+
+  <div id="filterResults" class="mt-10">
+    <div class="mt-28 flex flex-col items-center gap-3 opacity-60">
+      <svg
+        class="w-16 h-16 text-white"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M3 3h16v2H5v14h14v2H3V3zm18 0h-2v18h2V3zM11 15h2v2h-2v-2zm2-8h-2v6h2V7z"
+          fill="currentColor"></path>
+      </svg>
+      <h1 class="text-2xl text-white font-bold">
+        En cuanto realizes una búsqueda, los resultados aparecerán aquí...
+      </h1>
+    </div>
   </div>
 
   <div
     id="passwordModal"
-    class="fadein hidden fixed inset-0 bg-gray-700 bg-opacity-75 flex items-end justify-center"
+    class="slideup hidden fixed inset-0 flex items-end justify-center"
+  >
+    <div
+      id="closePassword"
+      class="bg-gradient-to-tr from-green-600 to-blue-700 hue-rotate-animation rounded-t-3xl p-6 w-full h-full flex flex-col items-center justify-between"
+    >
+      <div></div>
+      <div class="max-w-[700px]">
+        <p class="mb-3 text-white text-2xl font-semibold">Código en vigor</p>
+        <h1
+          id="pwd"
+          class="w-full p-6 text-6xl text-white text-center font-black rounded-2xl bg-white/5"
+        >
+        </h1>
+        <p class="mt-3 text-white opacity-60">
+          Válido desde ahora hasta <span id="expiration"></span>
+        </p>
+      </div>
+      <p class="text-white opacity-30">Pulsa en cualquier lugar para salir.</p>
+    </div>
+  </div>
+
+  <div
+    id="settingsModal"
+    class="fadein hidden fixed inset-0 bg-gray-700 bg-opacity-0 flex items-end justify-center"
   >
     <button
-      id="closePassword"
+      id="closeSettings"
       class="top-[25px] right-[15px] w-14 h-14 bg-red-400 text-white rounded-2xl absolute"
       ><svg
         class="scale-75"
@@ -69,169 +196,144 @@ import Layout from "../layouts/Layout.astro";
       </svg></button
     >
     <div
-      class="slideup bg-gray-900 rounded-t-3xl p-6 w-full h-full flex flex-col items-center justify-center"
+      id="settingsPane"
+      class="slideup bg-gray-900 rounded-t-3xl p-6 w-full flex flex-col items-center"
     >
-      <div class="max-w-[700px]">
-        <p class="mb-3 text-white text-2xl font-semibold">Código en vigor</p>
-        <h1
-          id="pwd"
-          class="w-full p-6 text-6xl text-white text-center font-black rounded-2xl bg-white/5"
-        >
-        </h1>
-        <p class="mt-3 text-white opacity-60">
-          Válido desde ahora hasta <span id="expiration"></span>
-        </p>
-      </div>
-    </div>
-  </div>
-</main>
-
-<div
-  id="settingsModal"
-  class="fadein hidden fixed inset-0 bg-gray-700 bg-opacity-75 flex items-end justify-center"
->
-  <button
-    id="closeSettings"
-    class="top-[25px] right-[15px] w-14 h-14 bg-red-400 text-white rounded-2xl absolute"
-    ><svg
-      class="scale-75"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-    >
-      <path
-        d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z"
-        fill="currentColor"></path>
-    </svg></button
-  >
-  <div class="slideup bg-gray-900 rounded-t-3xl p-6 w-full">
-    <div class="mb-7 text-white flex flex-row items-center gap-3">
-      <svg
-        class="w-8 h-8"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M8 3h8v4h6v14H2V7h6V3zm2 4h4V5h-4v2zM4 9v10h16V9H4z"
-          fill="currentColor"></path>
-      </svg>
-      <h3 class="text-white text-2xl font-bold">Parámetros</h3>
-    </div>
-    <div class="mb-6">
-      <h3 class="mb-3 text-xl text-white font-semibold">
-        Generar contraseña de voluntarios
-      </h3>
-      <div>
-        <label
-          for="expirationToggle"
-          class="mb-1 block text-sm font-medium text-gray-700">Expiración</label
-        >
-        <select
-          id="expirationToggle"
-          name="expirationToggle"
-          class="block w-full shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          onchange="toggleExpiration()"
-        >
-          <option value="today">Hoy a medianoche</option>
-          <option value="manual">Elegir fecha manualmente</option>
-        </select>
-        <div id="datePickerContainer" class="hidden">
-          <input
-            type="date"
-            id="expirationDate"
-            name="expirationDate"
-            class="block w-full border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm rounded-md"
-          />
+      <div class="w-full max-w-[700px]">
+        <div class="mb-7 text-white flex flex-row items-center gap-3">
+          <svg
+            class="w-8 h-8"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M8 3h8v4h6v14H2V7h6V3zm2 4h4V5h-4v2zM4 9v10h16V9H4z"
+              fill="currentColor"></path>
+          </svg>
+          <h3 class="text-white text-2xl font-bold">Parámetros</h3>
         </div>
+        <div class="mb-6">
+          <h3 class="mb-3 text-xl text-white font-semibold">
+            Generar contraseña de voluntarios
+          </h3>
+          <div>
+            <label
+              for="expirationToggle"
+              class="mb-1 block text-sm font-medium text-gray-700"
+              >Expiración</label
+            >
+            <select
+              id="expirationToggle"
+              name="expirationToggle"
+              class="block w-full shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              onchange="toggleExpiration()"
+            >
+              <option value="today">Hoy a medianoche</option>
+              <option value="manual">Elegir fecha manualmente</option>
+            </select>
+            <div id="datePickerContainer" class="hidden">
+              <input
+                type="date"
+                id="expirationDate"
+                name="expirationDate"
+                class="block w-full border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm rounded-md"
+              />
+            </div>
+            <form
+              id="passwordForm"
+              action="http://localhost:3000/canviar-mot-de-pas"
+              method="post"
+              enctype="application/x-www-form-urlencoded"
+            >
+              <input type="hidden" id="password" name="password" />
+              <input type="hidden" id="expiration" name="expiration" />
+              <button
+                type="submit"
+                type="button"
+                class="w-full py-2 bg-blue-600 text-white rounded-t-md rounded-b-2xl flex items-center justify-center gap-3"
+                onclick="generatePassword()"
+                ><svg
+                  class="w-6 h-6"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M16 3H8v4H2v14h20V7h-6V3zm-2 4h-4V5h4v2zM4 19V9h16v10H4zm10-8h2v2h-2v-2zm-2 4v-2h2v2h-2zm-2 0h2v2h-2v-2zm0 0H8v-2h2v2z"
+                    fill="currentColor"></path>
+                </svg> Generar una nueva contraseña</button
+              >
+            </form>
+          </div>
+        </div>
+
+        <h3 class="mb-3 text-xl text-white font-semibold">Añadir centro</h3>
         <form
-          id="passwordForm"
-          action="http://localhost:3000/canviar-mot-de-pas"
+          action="http://localhost:3000/afegir-centre"
           method="post"
           enctype="application/x-www-form-urlencoded"
         >
-          <input type="hidden" id="password" name="password" />
-          <input type="hidden" id="expiration" name="expiration" />
+          <input
+            type="text"
+            id="name"
+            name="name"
+            class="w-full border"
+            placeholder="Nom del centre"
+          />
           <button
             type="submit"
-            type="button"
-            class="w-full py-2 bg-blue-600 text-white rounded-t-md rounded-b-2xl flex items-center justify-center gap-3"
-            onclick="generatePassword()"
-            ><svg
-              class="w-6 h-6"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M16 3H8v4H2v14h20V7h-6V3zm-2 4h-4V5h4v2zM4 19V9h16v10H4zm10-8h2v2h-2v-2zm-2 4v-2h2v2h-2zm-2 0h2v2h-2v-2zm0 0H8v-2h2v2z"
-                fill="currentColor"></path>
-            </svg> Generar una nueva contraseña</button
+            class="w-full py-2 bg-green-500 text-white rounded-t-md rounded-b-2xl"
+            >Añadir</button
+          >
+        </form>
+        <h3 class="mt-6 mb-3 text-xl text-white font-semibold">
+          Eliminar centro
+        </h3>
+        <form
+          action="http://localhost:3000/esborrar-centre"
+          method="post"
+          enctype="application/x-www-form-urlencoded"
+        >
+          <select id="delete" name="delete" class="w-full border"></select>
+          <button
+            type="submit"
+            class="w-full py-2 bg-red-500 text-white rounded-t-md rounded-b-2xl"
+            >Eliminar</button
+          >
+        </form>
+        <h3 class="mt-6 mb-3 text-xl text-white font-semibold">
+          Añadir artículo
+        </h3>
+        <form
+          action="http://localhost:3000/afegir-article"
+          method="post"
+          enctype="application/x-www-form-urlencoded"
+        >
+          <input
+            type="text"
+            id="barcode"
+            name="barcode"
+            placeholder="Codi de barres"
+            class="w-full border"
+          />
+          <input
+            type="text"
+            id="article"
+            name="article"
+            placeholder="Nom de l'article"
+            class="w-full border rounded-md"
+          />
+          <button
+            type="submit"
+            class="w-full py-2 bg-green-500 text-white rounded-t-md rounded-b-2xl"
+            >Añadir</button
           >
         </form>
       </div>
     </div>
-
-    <h3 class="mb-3 text-xl text-white font-semibold">Añadir centro</h3>
-    <form
-      action="http://localhost:3000/afegir-centre"
-      method="post"
-      enctype="application/x-www-form-urlencoded"
-    >
-      <input
-        type="text"
-        id="name"
-        name="name"
-        class="w-full border"
-        placeholder="Nom del centre"
-      />
-      <button
-        type="submit"
-        class="w-full py-2 bg-green-500 text-white rounded-t-md rounded-b-2xl"
-        >Submit</button
-      >
-    </form>
-    <h3 class="mt-6 mb-3 text-xl text-white font-semibold">Eliminar centro</h3>
-    <form
-      action="http://localhost:3000/esborrar-centre"
-      method="post"
-      enctype="application/x-www-form-urlencoded"
-    >
-      <select id="delete" name="delete" class="w-full border"></select>
-      <button
-        type="submit"
-        class="w-full py-2 bg-red-500 text-white rounded-t-md rounded-b-2xl"
-        >Submit</button
-      >
-    </form>
-    <h3 class="mt-6 mb-3 text-xl text-white font-semibold">Añadir artículo</h3>
-    <form
-      action="http://localhost:3000/afegir-article"
-      method="post"
-      enctype="application/x-www-form-urlencoded"
-    >
-      <input
-        type="text"
-        id="barcode"
-        name="barcode"
-        placeholder="Codi de barres"
-        class="w-full border"
-      />
-      <input
-        type="text"
-        id="article"
-        name="article"
-        placeholder="Nom de l'article"
-        class="w-full border rounded-md"
-      />
-      <button
-        type="submit"
-        class="w-full py-2 bg-green-500 text-white rounded-t-md rounded-b-2xl"
-        >Submit</button
-      >
-    </form>
   </div>
-</div>
+</main>
 
 <script>
   // Fetch data for the quantity select element
@@ -305,7 +407,9 @@ import Layout from "../layouts/Layout.astro";
   document
     .getElementById("closeSettings")
     .addEventListener("click", function () {
-      document.getElementById("settingsModal").classList.add("hidden");
+      setTimeout(() => {
+        document.getElementById("settingsModal").classList.add("hidden");
+      }, 300);
     });
 
   // Open and close password modal
@@ -339,6 +443,138 @@ import Layout from "../layouts/Layout.astro";
     input.value = barcode;
     form.appendChild(input);
   });
+
+  fetch(`http://localhost:3000/afegir-centre`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      data.forEach((item) => {
+        const select = document.getElementById("warehouse");
+        const option1 = document.createElement("option");
+        option1.value = item.id;
+        option1.text = item.centro + " (" + item.id + ")";
+        select.appendChild(option1);
+      });
+    })
+    .catch((error) => {
+      console.error("Error fetching data for dropdowns:", error);
+    });
+
+  fetch(`http://localhost:3000/afegir-article`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      data.forEach((item) => {
+        const select = document.getElementById("product");
+        const option1 = document.createElement("option");
+        option1.value = item.id;
+        option1.text = item.articulo + " (" + item.lectura + ")";
+        select.appendChild(option1);
+      });
+    })
+    .catch((error) => {
+      console.error("Error fetching data for dropdowns:", error);
+    });
+
+  // Hijack the filterButton submit so it doesn't leave the page and instead logs the result given by the server
+  document
+    .getElementById("filterButton")
+    .addEventListener("click", async (event) => {
+      event.preventDefault();
+      const product = document.getElementById("product").value;
+      const warehouse = document.getElementById("warehouse").value;
+      const status = document.getElementById("status").value;
+      const before = document.getElementById("before").value;
+      const after = document.getElementById("after").value;
+      const code = localStorage.getItem("adminlogin");
+
+      const response = await fetch(`http://localhost:3000/filtrar`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `product=${product}&warehouse=${warehouse}&status=${status}&before=${before}&after=${after}&code=${code}`,
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      // Group the results by warehouse
+      const groupedData = data.reduce((acc, item) => {
+        if (!acc[item.almacen]) {
+          acc[item.almacen] = { onRoute: 0, arrived: 0, total: 0 };
+        }
+        acc[item.almacen].total += 1;
+        if (item.fulfilled === 0) {
+          acc[item.almacen].onRoute += 1;
+        } else {
+          acc[item.almacen].arrived += 1;
+        }
+        return acc;
+      }, {});
+
+      // Calculate overall totals
+      const overallTotals = Object.values(groupedData).reduce(
+        (acc, warehouse) => {
+          acc.onRoute += warehouse.onRoute;
+          acc.arrived += warehouse.arrived;
+          acc.total += warehouse.total;
+          return acc;
+        },
+        { onRoute: 0, arrived: 0, total: 0 }
+      );
+
+      // Display the results
+      const results = document.getElementById("filterResults");
+      results.innerHTML = "";
+      results.innerHTML = `
+            <h2 class="text-white/30 text-2xl font-medium mb-4">Mostrando resultados para <span class="font-bold text-white">${product ? `producto ${product}` : "todos los productos"}</span> en <span class="font-bold text-white">${warehouse ? `almacén ${warehouse}` : "todos los almacenes"}</span> ${status ? `con estado <span class="font-bold text-white">${status === "0" ? "en ruta" : "recibido"}` : ", <span class='font-bold text-white'>en cualquier estado</span>"}</span> ${before ? `antes de <span class="font-bold text-white">${before}</span>` : ""} ${after ? `después de <span class="font-bold text-white">${after}</span>` : ""}</h2>
+        `;
+
+      // Display overall totals if there is more than one warehouse
+      if (Object.keys(groupedData).length > 1) {
+        const overallDiv = document.createElement("div");
+        overallDiv.classList.add("overall-totals");
+        overallDiv.innerHTML = `
+                <div class="w-full p-6 rounded-t-2xl rounded-b-md bg-white/5 text-white">
+                <div class="flex flex-row items-center justify-between gap-3">
+                <h3 class="text-xl font-bold mb-2">Vista General</h3>
+                <p><span class="opacity-60">${overallTotals.total}</span> <span class="opacity-30">Palets totales</span></p>
+                </div>
+                <div class="flex flex-row items-center gap-6">
+                <p class="w-full flex flex-col items-center gap-1"><svg class="w-16 h-16" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 2h2v2h2v2h-2v10H8V6H6V4h2V2zM4 8V6h2v2H4zm2 10v2H4v2H2V8h2v10h2zm0 0h2v-2H6v2zm6 0h-2v-2h2v2zm2-10V6h-2v2h2zm2 0h-2v10h-2v2h2v2h2v-2h2v-2h2v-2h2V2h-2v2h-2v2h-2v2zm0 0h2V6h2v10h-2v2h-2V8z" fill="currentColor"/> </svg> <span class="flex flex-row gap-3"><span class="text-5xl font-extrabold">${overallTotals.onRoute}</span><span class="flex flex-col items-start"><span class="opacity-60">Palets</span><span>en ruta</span></span></p>
+                <p class="w-full flex flex-col items-center gap-1"><svg class="w-16 h-16" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 2h14v4h6v16H2V2zm18 6h-4v2h2v2h-2v2h2v2h-2v2h2v2h2V8zm-6-4H4v16h2v-2h6v2h2V4zM6 6h2v2H6V6zm6 0h-2v2h2V6zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2z" fill="currentColor"/> </svg> <span class="flex flex-row gap-3"><span class="text-5xl font-extrabold">${overallTotals.arrived}</span><span class="flex flex-col items-start"><span class="opacity-60">Palets</span><span>recibidos</span></span></p>
+                </div>
+                </div>
+            `;
+        results.appendChild(overallDiv);
+      }
+
+      for (const [warehouse, counts] of Object.entries(groupedData)) {
+        const warehouseDiv = document.createElement("div");
+        warehouseDiv.classList.add("warehouse-group");
+        warehouseDiv.innerHTML = `
+                <div class="mt-1 w-full p-6 rounded-md bg-white/5 text-white">
+                <div class="flex flex-row items-center justify-between gap-3">
+                <h3 class="text-xl font-bold mb-2">${warehouse}</h3>
+                <p><span class="opacity-60">${counts.total}</span> <span class="opacity-30">Palets totales</span></p>
+                </div>
+                <div class="flex flex-row items-center gap-6">
+                <p class="w-full flex flex-col items-center gap-1"><svg class="w-16 h-16" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 2h2v2h2v2h-2v10H8V6H6V4h2V2zM4 8V6h2v2H4zm2 10v2H4v2H2V8h2v10h2zm0 0h2v-2H6v2zm6 0h-2v-2h2v2zm2-10V6h-2v2h2zm2 0h-2v10h-2v2h2v2h2v-2h2v-2h2v-2h2V2h-2v2h-2v2h-2v2zm0 0h2V6h2v10h-2v2h-2V8z" fill="currentColor"/> </svg> <span class="flex flex-row gap-3"><span class="text-5xl font-extrabold">${counts.onRoute}</span><span class="flex flex-col items-start"><span class="opacity-60">Palets</span><span>en ruta</span></span></p>
+                <p class="w-full flex flex-col items-center gap-1"><svg class="w-16 h-16" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 2h14v4h6v16H2V2zm18 6h-4v2h2v2 h-2v2h2v2h-2v2h2v2h2V8zm-6-4H4v16h2v-2h6v2h2V4zM6 6h2v2H6V6zm6 0h-2v2h2V6zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2z" fill="currentColor"/> </svg> <span class="flex flex-row gap-3"><span class="text-5xl font-extrabold">${counts.arrived}</span><span class="flex flex-col items-start"><span class="opacity-60">Palets</span><span>recibidos</span></span></p>
+            `;
+        results.appendChild(warehouseDiv);
+      }
+    });
 </script>
 
 <script is:inline>
@@ -473,6 +709,16 @@ import Layout from "../layouts/Layout.astro";
     }
     to {
       opacity: 0;
+    }
+  }
+
+  .hue-rotate-animation {
+    animation: hue-rotate 20s linear infinite;
+  }
+
+  @keyframes hue-rotate {
+    100% {
+      filter: hue-rotate(360deg);
     }
   }
 </style>

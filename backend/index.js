@@ -155,6 +155,19 @@ app.post('/afegir-article', (req, res) => {
         });
 });
 
+app.get('/afegir-article', (req, res) => {
+    db.any('SELECT * FROM articulos')
+        .then(data => {
+            console.log('Data received from the database');
+            res.json(data);
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('Error receiving data from the database', error);
+            res.status(500).json({ message: 'Error al recibir datos de la base de datos' });
+        });
+});
+
 app.post('/verificar-article', (req, res) => {
     const form = req.body;
     db.any('SELECT * FROM articulos WHERE lectura = $1', [form.barcode])
@@ -293,6 +306,62 @@ function verifyCode(code) {
             return false;
         });
 }
+
+app.post('/filtrar', (req, res) => {
+    const form = req.body;
+    console.log(form);
+
+    let before = form.before ? new Date(form.before) : null;
+    if (before) {
+        before.setHours(24, 0, 0, 0);
+    }
+
+    let after = form.after ? new Date(form.after) : null;
+    if (after) {
+        after.setHours(0, 0, 0, 0);
+    }
+
+    // Verify the admin code
+    verifyCodeAdmin(form.code)
+        .then(isValid => {
+            if (isValid) {
+                const query = `
+                    SELECT r.id, r.lectura, a.articulo AS lectura_nombre, c.centro AS almacen, r.timestamp, r.fulfilled, r.timestamp_recepcion
+                    FROM reparto r
+                    JOIN centro c ON r.almacen = c.id
+                    JOIN articulos a ON r.lectura = a.lectura
+                    WHERE ($1::int IS NULL OR a.id = $1::int)
+                    AND ($2::int IS NULL OR r.almacen = $2::int)
+                    AND ($3::int IS NULL OR r.fulfilled = $3::int)
+                    AND ($4::date IS NULL OR r.timestamp >= $4)
+                    AND ($5::date IS NULL OR r.timestamp <= $5)
+                `;
+                const params = [
+        form.product ? parseInt(form.product, 10) : null,
+                    form.warehouse ? parseInt(form.warehouse, 10) : null,
+                    form.status ? parseInt(form.status, 10) : null,
+                    after,
+                    before
+                ];
+
+                db.any(query, params)
+                    .then(data => {
+                        console.log('Data received from the database');
+                        res.json(data);
+                    })
+                    .catch(error => {
+                        console.error('Error receiving data from the database', error);
+                        res.status(500).json({ message: 'Error al recibir datos de la base de datos' });
+                    });
+            } else {
+                res.status(403).json({ message: 'Código de verificación inválido o expirado' });
+            }
+        })
+        .catch(error => {
+            console.error('Error verifying code:', error);
+            res.status(500).json({ message: 'Error al verificar el código de verificación' });
+        });
+});
 
 // ADMIN
 app.post('/codi-expirat-admin', (req, res) => {
