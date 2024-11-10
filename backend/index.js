@@ -7,7 +7,7 @@ const db = pgp(process.env.DATABASE_URL || 'postgres://username:password@localho
 const redirectURL = process.env.REDIRECT_URL || 'http://localhost:4321';
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -404,7 +404,9 @@ app.post('/canviar-mot-de-pas', (req, res) => {
             if (isValid) {
                 // Set expiration to midnight if it is empty
                 let expiration = form.expiration;
+                console.log(form);
                 if (!expiration || expiration == '') {
+                    console.log('Expiration not found');
                     const today = new Date();
                     expiration = new Date(today.setHours(24, 0, 0, 0)).toISOString();
                 }

@@ -1,9 +1,13 @@
 ---
 import Layout from "../layouts/Layout.astro";
+
+const BACKEND_URL = import.meta.env.BACKEND_URL;
+console.log(BACKEND_URL);
 ---
 
 <Layout title="Barcode Scanner">
   <main>
+    <p id="BACKEND_URL" class="hidden">{ BACKEND_URL }</p>
     <div
       id="notification"
       class="hidetime w-full top-0 bg-green-500 text-left text-white p-2 px-3 rounded-b-xl inline-flex items-center justify-center gap-1 hidden z-20 absolute"
@@ -170,7 +174,7 @@ import Layout from "../layouts/Layout.astro";
       <form
         id="errNotFound-send-form"
         class="w-full flex flex-col items-center gap-1 hidden relative"
-        action="http://localhost:3000/upload"
+        action={`${BACKEND_URL}/upload`}  
         method="post"
         enctype="application/x-www-form-urlencoded"
       >
@@ -201,7 +205,7 @@ import Layout from "../layouts/Layout.astro";
       <form
         id="send-form"
         class="w-full flex flex-row items-center gap-1 relative"
-        action="http://localhost:3000/upload"
+        action={`${BACKEND_URL}/upload`}
         method="post"
         enctype="application/x-www-form-urlencoded"
       >
@@ -226,7 +230,7 @@ import Layout from "../layouts/Layout.astro";
       </form>
       <p class="beforesvg mt-3 text-white/30 inline-block items-center">
         Te encuentras en el centro
-        <span id="centerLocation" class="text-white/60"></span>
+        <span id="centerLocation" class="text-white/60"></span>, si no es correcto, cambia tu ubicación en el menú superior derecho.
       </p>
     </div>
   </div>
@@ -259,6 +263,7 @@ import Layout from "../layouts/Layout.astro";
 </Layout>
 
 <script>
+  const BACKEND_URL = document.getElementById("BACKEND_URL").textContent;
   import Quagga from "quagga";
 
   // Function to initialize and start the Quagga scanner
@@ -301,7 +306,7 @@ import Layout from "../layouts/Layout.astro";
             document.getElementById("quantity").selectedOptions[0].textContent;
 
           // Verify the barcode
-          fetch(`http://localhost:3000/verificar-article`, {
+          fetch(`${BACKEND_URL}/verificar-article`, {
             method: "POST",
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
@@ -318,7 +323,7 @@ import Layout from "../layouts/Layout.astro";
                   .getElementById("errNotFound-send-form")
                   .classList.remove("hidden");
 
-                fetch(`http://localhost:3000/verificar-article`)
+                fetch(`${BACKEND_URL}/verificar-article`)
                   .then((response) => response.json())
                   .then((data) => {
                     data.forEach((item) => {
@@ -344,7 +349,7 @@ import Layout from "../layouts/Layout.astro";
         document.querySelector("#timestamp-input").value = timestamp;
 
         if (localStorage.getItem("mode") == "2") {
-          fetch(`http://localhost:3000/verificar`, {
+          fetch(`${BACKEND_URL}/verificar`, {
             method: "POST",
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
@@ -367,9 +372,10 @@ import Layout from "../layouts/Layout.astro";
                 data.length +
                 " palets de " +
                 data[0].lectura_nombre +
-                " <span class='text-lg opacity-60)'>(" +
+                " <span class='text-lg opacity-60'>(" +
                 barcode +
-                ")</span>.";
+                ")</span><br><p class='w-[calc(100%-70px)] font-medium text-lg opacity-60 inline-block'>Para marcar un item como recibido, pulsa <span class='beforecheck'>en</span> cualquiera del centro proveniente.</p>";
+
 
               const receiveList = document.getElementById("receiveList");
               receiveList.innerHTML = "";
@@ -451,7 +457,7 @@ import Layout from "../layouts/Layout.astro";
     const select = document.getElementById("quantity");
 
     // Fetch data for the dropdowns
-    fetch(`http://localhost:3000/afegir-centre`, {
+    fetch(`${BACKEND_URL}/afegir-centre`, {
       method: "GET",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -593,6 +599,7 @@ import Layout from "../layouts/Layout.astro";
 </script>
 
 <script is:inline>
+  const BACKEND_URL = document.getElementById("BACKEND_URL").textContent;
   document.addEventListener("DOMContentLoaded", async (event) => {
     let isValid = false;
     while (!isValid) {
@@ -610,7 +617,7 @@ import Layout from "../layouts/Layout.astro";
     }
 
     // Check if the code is expired
-    const response = await fetch(`http://localhost:3000/codi-expirat`, {
+    const response = await fetch(`${BACKEND_URL}/codi-expirat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -619,7 +626,6 @@ import Layout from "../layouts/Layout.astro";
     });
 
     const data = await response.json();
-    console.log(data);
     if (data.expired) {
       localStorage.removeItem("barcode");
       alert("The verification code is incorrect or has expired.");
@@ -632,7 +638,7 @@ import Layout from "../layouts/Layout.astro";
   function deletePalet(id) {
     const barcode = localStorage.getItem("barcode");
     if (confirm("Are you sure you want to delete this palet?")) {
-      fetch(`http://localhost:3000/esborrar-palet`, {
+      fetch(`${BACKEND_URL}/esborrar-palet`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -653,7 +659,7 @@ import Layout from "../layouts/Layout.astro";
   function acceptPalet(id) {
     const barcode = localStorage.getItem("barcode");
     if (confirm("Are you sure you want to accept this palet?")) {
-      fetch(`http://localhost:3000/acceptar-palet`, {
+      fetch(`${BACKEND_URL}/acceptar-palet`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -662,7 +668,6 @@ import Layout from "../layouts/Layout.astro";
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log(data);
           if (data.message == 0) {
             window.location.href = window.location.pathname;
           } else {
@@ -767,6 +772,18 @@ import Layout from "../layouts/Layout.astro";
     transform:translate(0, -1px);
     filter:invert(1);
     opacity: 0.3;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.15rem; /* Adjust the margin as needed */
+  }
+
+  .beforecheck::before {
+    content: '';
+    background-image: url('data:image/svg+xml;utf8,<svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M18 6h2v2h-2V6zm-2 4V8h2v2h-2zm-2 2v-2h2v2h-2zm-2 2h2v-2h-2v2zm-2 2h2v-2h-2v2zm-2 0v2h2v-2H8zm-2-2h2v2H6v-2zm0 0H4v-2h2v2z" fill="currentColor"/> </svg>');
+    width: 1.3rem;
+    height: 1.3rem;
+    transform:translate(0, -1px);
+    filter:invert(1);
     display: inline-block;
     vertical-align: middle;
     margin-right: 0.15rem; /* Adjust the margin as needed */

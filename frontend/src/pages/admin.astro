@@ -1,12 +1,15 @@
 ---
 import Layout from "../layouts/Layout.astro";
+
+const BACKEND_URL = import.meta.env.BACKEND_URL;
 ---
 
 <Layout title="Admin | Barcode Scanner" />
 <main class="h-screen left-1/2 -translate-x-1/2 max-w-[1300px] relative">
+  <p id="BACKEND_URL" class="hidden">{ BACKEND_URL }</p>
   <div
     id="notification"
-    class="hidetime top-20 right-3 bg-green-500 text-left text-white p-2 rounded-xl text-center flex flex-row items-center gap-3 hidden z-20 absolute"
+    class="hidetime top-20 right-3 bg-green-500 text-left text-white p-2 rounded-xl text-center flex flex-row items-center gap-3 hidden pointer-events-none z-20 absolute"
   >
     <svg
       class="w-8 h-8"
@@ -166,14 +169,14 @@ import Layout from "../layouts/Layout.astro";
     >
       <div></div>
       <div class="max-w-[700px]">
-        <p class="mb-3 text-white text-2xl font-semibold">Código en vigor</p>
+        <p id="pwdHeading" class="mb-3 text-white text-2xl font-semibold">Código en vigor</p>
         <h1
           id="pwd"
           class="w-full p-6 text-6xl text-white text-center font-black rounded-2xl bg-white/5"
         >
         </h1>
-        <p class="mt-3 text-white opacity-60">
-          Válido desde ahora hasta <span id="expiration"></span>
+        <p id="validity" class="mt-3 text-white opacity-60">
+          Válido desde ahora hasta <span id="expirationVisual"></span>
         </p>
       </div>
       <p class="text-white opacity-30">Pulsa en cualquier lugar para salir.</p>
@@ -245,15 +248,13 @@ import Layout from "../layouts/Layout.astro";
             </div>
             <form
               id="passwordForm"
-              action="http://localhost:3000/canviar-mot-de-pas"
+              action={`${BACKEND_URL}/canviar-mot-de-pas`}
               method="post"
               enctype="application/x-www-form-urlencoded"
             >
               <input type="hidden" id="password" name="password" />
               <input type="hidden" id="expiration" name="expiration" />
               <button
-                type="submit"
-                type="button"
                 class="w-full py-2 bg-blue-600 text-white rounded-t-md rounded-b-2xl flex items-center justify-center gap-3"
                 onclick="generatePassword()"
                 ><svg
@@ -273,7 +274,7 @@ import Layout from "../layouts/Layout.astro";
 
         <h3 class="mb-3 text-xl text-white font-semibold">Añadir centro</h3>
         <form
-          action="http://localhost:3000/afegir-centre"
+          action={`${BACKEND_URL}/afegir-centre`}
           method="post"
           enctype="application/x-www-form-urlencoded"
         >
@@ -294,7 +295,7 @@ import Layout from "../layouts/Layout.astro";
           Eliminar centro
         </h3>
         <form
-          action="http://localhost:3000/esborrar-centre"
+          action={`${BACKEND_URL}/eliminar-centro`}
           method="post"
           enctype="application/x-www-form-urlencoded"
         >
@@ -309,7 +310,7 @@ import Layout from "../layouts/Layout.astro";
           Añadir artículo
         </h3>
         <form
-          action="http://localhost:3000/afegir-article"
+          action={`${BACKEND_URL}/afegir-article`}
           method="post"
           enctype="application/x-www-form-urlencoded"
         >
@@ -339,12 +340,13 @@ import Layout from "../layouts/Layout.astro";
 </main>
 
 <script>
+  const BACKEND_URL = document.getElementById("BACKEND_URL").innerText;
   // Fetch data for the quantity select element
   document.addEventListener("DOMContentLoaded", (event) => {
     const deleteSelect = document.getElementById("delete");
 
     // Fetch data for the dropdowns
-    fetch(`http://localhost:3000/afegir-centre`, {
+    fetch(`${BACKEND_URL}/afegir-centre`, {
       method: "GET",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -380,8 +382,7 @@ import Layout from "../layouts/Layout.astro";
       document.getElementById("notification").classList.remove("hidden");
     }
 
-    // Post request localhost:3000/codi-en-vigor to get the current code, pass the adminlogin code
-    fetch(`http://localhost:3000/codi-en-vigor`, {
+    fetch(`${BACKEND_URL}/codi-en-vigor`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -391,9 +392,18 @@ import Layout from "../layouts/Layout.astro";
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
+        if (!data.message) {
         document.getElementById("pwd").innerHTML = data.data.code;
         var date = new Date(data.data.expiration).toLocaleString();
-        document.getElementById("expiration").innerHTML = date;
+        document.getElementById("expirationVisual").innerHTML = date;
+        } else {
+          document.getElementById("pwdHeading").classList.add("hidden");
+          document.getElementById("pwd").innerHTML = "Códigos caducados";
+          document.getElementById("validity").innerHTML = "Por favor, genera un nuevo código.";
+
+          document.getElementById("notification").innerHTML = data.message;
+          document.getElementById("notification").classList.remove("hidden");
+        }
       })
       .catch((error) => {
         console.error("Error fetching data for dropdowns:", error);
@@ -447,7 +457,7 @@ import Layout from "../layouts/Layout.astro";
     form.appendChild(input);
   });
 
-  fetch(`http://localhost:3000/afegir-centre`, {
+  fetch(`${BACKEND_URL}/afegir-centre`, {
     method: "GET",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -467,7 +477,7 @@ import Layout from "../layouts/Layout.astro";
       console.error("Error fetching data for dropdowns:", error);
     });
 
-  fetch(`http://localhost:3000/afegir-article`, {
+  fetch(`${BACKEND_URL}/afegir-article`, {
     method: "GET",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -509,7 +519,7 @@ import Layout from "../layouts/Layout.astro";
       const after = document.getElementById("after").value;
       const code = localStorage.getItem("adminlogin");
 
-      const response = await fetch(`http://localhost:3000/filtrar`, {
+      const response = await fetch(`${BACKEND_URL}/filtrar`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -628,6 +638,8 @@ import Layout from "../layouts/Layout.astro";
 </script>
 
 <script is:inline>
+  const BACKEND_URL = document.getElementById("BACKEND_URL").innerText;
+
   document.addEventListener("DOMContentLoaded", async (event) => {
     let isValid = false;
     while (!isValid) {
@@ -645,7 +657,7 @@ import Layout from "../layouts/Layout.astro";
     }
 
     // Check if the code is expired
-    const response = await fetch(`http://localhost:3000/codi-expirat-admin`, {
+    const response = await fetch(`${BACKEND_URL}/codi-expirat-admin`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -684,11 +696,15 @@ import Layout from "../layouts/Layout.astro";
       }
       expirationDate = new Date(expirationDateInput).toISOString();
     }
+    console.log(expirationDate);
 
     document.getElementById("expiration").value = expirationDate;
 
     // Submit the form
-    document.getElementById("passwordForm").submit();
+    setTimeout(() => {
+      document.getElementById("passwordForm").submit();
+    }, 3000);
+
   }
 
   function toggleExpiration() {
