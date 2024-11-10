@@ -562,6 +562,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       results.innerHTML = "";
       results.innerHTML = `
         <hr class="w-full border-white/10 my-6" />
+        <div class="hidden" id="jsonFilterData">${JSON.stringify(data)}</div>
         <h2 class="text-white/30 text-2xl font-medium mb-4">Mostrando resultados para <span class="font-bold text-white">${product ? productText : "todos los productos"}</span> en <span class="font-bold text-white">${warehouse ? warehouseText : "todos los almacenes"}</span> ${status ? `con estado <span class="font-bold text-white">${status === "0" ? "en ruta" : status === "1" ? "recibido" : "en ruta y recibido"}` : ", <span class='font-bold text-white'>en cualquier estado</span>"}</span> ${before ? `antes de <span class="font-bold text-white">${before}</span>` : ""} ${after ? `después de <span class="font-bold text-white">${after}</span>` : ""}</h2>
     `;
 
@@ -575,11 +576,13 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
         return;
       }
 
+      results.innerHTML += `<div onclick="exportTableToCSV('results.csv');" class="mb-3 p-6 rounded-2xl bg-green-600 hover:bg-green-700 font-semibold text-white text-center cursor-pointer flex flex-row items-center justify-center gap-3"><svg class="w-6 text-white" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M4 2h14v2H4v16h2v-6h12v6h2V6h2v16H2V2h2zm4 18h8v-4H8v4zM20 6h-2V4h2v2zM6 6h9v4H6V6z" fill="currentColor"/> </svg> Exportar a CSV</div>`;
+
       // Display overall totals if there is more than one warehouse
       if (Object.keys(groupedData).length > 1) {
         const overallDiv = document.createElement("div");
         overallDiv.classList.add("overall-totals");
-        overallDiv.innerHTML = `
+        overallDiv.innerHTML += `
             <div class="mt-1 w-full p-6 rounded-t-2xl rounded-md bg-white/5 text-white">
                 <div class="mb-3 flex flex-row items-center justify-between gap-3">
                     <h3 class="text-xl font-bold mb-2">Totales generales</h3>
@@ -717,8 +720,61 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     }
   }
 
+  function exportTableToCSV(filename) {
+    const json = document.getElementById("jsonFilterData").innerText;
+    const data = JSON.parse(json);
+
+    const headers = [
+      "id",
+      "codigo",
+      "nombre",
+      "almacen",
+      "timestamp_envio",
+      "estado",
+      "timestamp_llegada",
+    ];
+
+    const csv = [
+      headers.join(","),
+      ...data.map((row) => {
+        return [
+          row.id,
+          row.lectura,
+          row.lectura_nombre,
+          row.almacen,
+          row.timestamp === 0
+            ? "Error"
+            : new Date(row.timestamp).toLocaleString().replace(",", " |"),
+          row.fulfilled === 0 ? "En ruta" : "Entregado",
+          row.timestamp_recepcion == 0
+            ? "No ha llegado"
+            : new Date(row.timestamp_recepcion)
+                .toLocaleString()
+                .replace(",", " |"),
+        ].join(",");
+      }),
+    ].join("\n");
+
+    // Create a Blob from the CSV data
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+
+    // Create a link element
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+
+    // Append the link to the document and trigger the download
+    document.body.appendChild(a);
+    a.click();
+
+    // Clean up
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
   function openmodal(id) {
-      document.getElementById(id).classList.remove("hidden");
+    document.getElementById(id).classList.remove("hidden");
   }
 
   function closemodal(id, id2) {

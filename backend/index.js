@@ -3,16 +3,20 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const pgp = require('pg-promise')();
 const path = require('path');
+const dotenv = require('dotenv');
 
-const db = pgp(process.env.DATABASE_URL || 'postgres://username:password@localhost:5432/reparto');
-const redirectURL = process.env.REDIRECT_URL || 'http://localhost:4321';
+dotenv.config();
+
+const db = pgp({ connectionString: process.env.DATABASE_URL });
+const redirectURL = process.env.REDIRECT_URL;
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "/public")));
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+console.log(path.join(__dirname, "../frontend/dist"));
 
 app.post('/upload', (req, res) => {
     const form = req.body;
