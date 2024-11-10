@@ -15,7 +15,7 @@ const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "../frontend/dist")));n
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 app.post('/upload', (req, res) => {
     const form = req.body;
