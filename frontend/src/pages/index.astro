@@ -126,7 +126,9 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
         id="quantity"
         name="quantity"
         class="mb-1 bg-slate-600 border-none rounded-t-2xl rounded-b-md p-2 w-full h-14 text-white relative"
-      ></select>
+      >
+      <option value="" disabled selected>Selecciona un centro</option>
+    </select>
       <button
         id="closeCenterSelect"
         onclick="closemodal('centerSelectModal', 'centerPane')"
