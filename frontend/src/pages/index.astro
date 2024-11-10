@@ -2,15 +2,14 @@
 import Layout from "../layouts/Layout.astro";
 
 const BACKEND_URL = import.meta.env.BACKEND_URL;
-console.log(BACKEND_URL);
 ---
 
-<Layout title="Barcode Scanner">
+<Layout title="DANAscan">
   <main>
     <p id="BACKEND_URL" class="hidden">{ BACKEND_URL }</p>
     <div
       id="notification"
-      class="hidetime w-full top-0 bg-green-500 text-left text-white p-2 px-3 rounded-b-xl inline-flex items-center justify-center gap-1 hidden z-20 absolute"
+      class="hidetime w-full top-0 bg-green-500 text-left text-white p-2 px-3 rounded-b-xl inline-flex items-center justify-center gap-1 hidden pointer-events-none z-20 absolute"
     >
       <svg
         class="w-8 h-8"
@@ -44,7 +43,7 @@ console.log(BACKEND_URL);
           </div>
         </div>
         <div
-          id="openCenterSelect"
+          onclick="openmodal('centerSelectModal')"
           class="p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-center text-white relative"
         >
           <svg
@@ -104,7 +103,7 @@ console.log(BACKEND_URL);
     >
       <img
         src="/DANAscan-logo-complete.png"
-        class="pr-10 w-full max-w-[400px] object-cover"
+        class="huerotate pr-10 w-full max-w-[400px] object-cover"
       />
       <div class="mt-6 max-w-[700px] flex flex-col items-start gap-3">
         <p class="text-xl">
@@ -112,7 +111,6 @@ console.log(BACKEND_URL);
             class="underline"
             href="https://www.linkedin.com/in/alejandro-gonz%C3%A1lez-a30727216/"
             >Alejandro González</a
-          >, agraïments a <a class="underline" href="https://www.iti.es">ITI</a
           >.
         </p>
         <br />
@@ -122,7 +120,7 @@ console.log(BACKEND_URL);
       </div>
     </div>
 
-    <div class="slideup bg-gray-900 rounded-t-3xl p-6 w-full text-white">
+    <div id="centerPane" class="slideup bg-gray-900 rounded-t-3xl p-6 w-full text-white">
       <h2 class="text-3xl font-bold mb-6">Seleccionar centro</h2>
       <select
         id="quantity"
@@ -131,6 +129,7 @@ console.log(BACKEND_URL);
       ></select>
       <button
         id="closeCenterSelect"
+        onclick="closemodal('centerSelectModal', 'centerPane')"
         class="w-full h-14 rounded-t-md rounded-b-2xl bg-green-400 hover:bg-green-500 flex flex-col items-center justify-center"
       >
         <svg
@@ -152,7 +151,7 @@ console.log(BACKEND_URL);
     class="fadein hidden fixed inset-0 bg-gray-700 bg-opacity-75 flex items-end justify-center"
   >
     <button
-      id="closeSend"
+      onclick="closemodal('sendModal', 'sendPane')"
       class="top-[25px] right-[15px] w-14 h-14 bg-red-400 text-white rounded-2xl absolute"
       ><svg
         class="scale-75"
@@ -165,7 +164,7 @@ console.log(BACKEND_URL);
           fill="currentColor"></path>
       </svg></button
     >
-    <div class="slideup bg-gray-900 rounded-t-3xl p-6 w-full text-white">
+    <div id="sendPane" class="slideup bg-gray-900 rounded-t-3xl p-6 w-full text-white">
       <div
         id="barcode-result"
         class="mb-6 w-full text-white flex flex-col items-center gap-1"
@@ -183,7 +182,7 @@ console.log(BACKEND_URL);
         <select
           id="errNotFound"
           name="barcode"
-          class="mb-6 bg-slate-600 border-none rounded-t-md rounded-b-2xl p-2 w-full h-14 text-white relative"
+          class="mb-3 bg-slate-600 border-none rounded-2xl p-2 w-full h-14 text-white relative"
         >
         </select>
         <button
@@ -191,7 +190,7 @@ console.log(BACKEND_URL);
           class="w-full h-14 rounded-2xl bg-green-400 hover:bg-green-500 flex flex-col items-center justify-center"
         >
           <svg
-            class="scale-75 invert"
+            class="scale-50 text-white"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -240,7 +239,7 @@ console.log(BACKEND_URL);
     class="fadein hidden fixed inset-0 bg-gray-700 bg-opacity-75 flex items-end justify-center overflow-scroll"
   >
     <button
-      id="closeReceive"
+      onclick="closemodal('receiveModal', 'receivePane')"
       class="top-[25px] right-[15px] w-14 h-14 bg-red-400 text-white rounded-2xl absolute"
       ><svg
         class="scale-75"
@@ -254,9 +253,10 @@ console.log(BACKEND_URL);
       </svg></button
     >
     <div
+    id="receivePane"
       class="max-h-screen slideup bg-gray-900 rounded-t-3xl p-6 w-full text-white overflow-scroll"
     >
-      <p class="text-xl font-bold mb-6" id="receiveNum"></p>
+      <p class="text-4xl font-bold mb-6" id="receiveNum"></p>
       <div id="receiveList" class="flex flex-col gap-1"></div>
     </div>
   </div>
@@ -302,6 +302,7 @@ console.log(BACKEND_URL);
 
         if (localStorage.getItem("mode") == "1") {
           document.getElementById("sendModal").classList.remove("hidden");
+          
           document.getElementById("centerLocation").textContent =
             document.getElementById("quantity").selectedOptions[0].textContent;
 
@@ -368,11 +369,8 @@ console.log(BACKEND_URL);
                 return;
               }
               document.getElementById("receiveNum").innerHTML =
-                "Existen " +
-                data.length +
-                " palets de " +
-                data[0].lectura_nombre +
-                " <span class='text-lg opacity-60'>(" +
+              data[0].lectura_nombre +
+                " <span class='text-lg opacity-60 font-medium'>(" +
                 barcode +
                 ")</span><br><p class='w-[calc(100%-70px)] font-medium text-lg opacity-60 inline-block'>Para marcar un item como recibido, pulsa <span class='beforecheck'>en</span> cualquiera del centro proveniente.</p>";
 
@@ -385,7 +383,7 @@ console.log(BACKEND_URL);
               const div = document.getElementById("receiveList");
 
               if (onRouteData.length > 0) {
-                div.innerHTML += `<p class="mb-3 font-bold text-xl flex flex-row items-center gap-3"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 2h2v2h2v2h-2v10H8V6H6V4h2V2zM4 8V6h2v2H4zm2 10v2H4v2H2V8h2v10h2zm0 0h2v-2H6v2zm6 0h-2v-2h2v2zm2-10V6h-2v2h2zm2 0h-2v10h-2v2h2v2h2v-2h2v-2h2v-2h2V2h-2v2h-2v2h-2v2zm0 0h2V6h2v10h-2v2h-2V8z" fill="currentColor"/> </svg> Palets en ruta</p>`;
+                div.innerHTML += `<p class="w-full mb-3 font-bold text-xl flex flex-row items-center justify-between gap-3"><span class="flex flex-row items-center gap-1"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 2h2v2h2v2h-2v10H8V6H6V4h2V2zM4 8V6h2v2H4zm2 10v2H4v2H2V8h2v10h2zm0 0h2v-2H6v2zm6 0h-2v-2h2v2zm2-10V6h-2v2h2zm2 0h-2v10h-2v2h2v2h2v-2h2v-2h2v-2h2V2h-2v2h-2v2h-2v2zm0 0h2V6h2v10h-2v2h-2V8z" fill="currentColor"/> </svg> Palets en ruta</span><span class="opacity-60 font-medium">(${onRouteData.length})</span></p>`;
               }
 
               onRouteData.forEach((item) => {
@@ -402,11 +400,11 @@ console.log(BACKEND_URL);
                 }
 
                 item.timestamp = new Date(item.timestamp).toLocaleString();
-                div.innerHTML += `<div class="bg-slate-700 ${rounded} px-5 py-3 text-white flex flex-col sm:flex-row items-center justify-between gap-3"><span class="text-2xl sm:text-xl font-semibold">${item.almacen}</span><span class="flex flex-row items-center gap-1"><span class="px-3 py-1 bg-slate-600 rounded-md">${item.timestamp}</span><div onclick="deletePalet(${item.id});"><svg class="ml-3 w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z" fill="currentColor"/> </svg></div><div onclick="acceptPalet(${item.id});"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M18 6h2v2h-2V6zm-2 4V8h2v2h-2zm-2 2v-2h2v2h-2zm-2 2h2v-2h-2v2zm-2 2h2v-2h-2v2zm-2 0v2h2v-2H8zm-2-2h2v2H6v-2zm0 0H4v-2h2v2z" fill="currentColor"/> </svg></div></span></div>`;
+                div.innerHTML += `<div class="bg-slate-700 ${rounded} px-5 py-3 text-white flex flex-col sm:flex-row items-center justify-between gap-3"><span class="text-2xl sm:text-xl font-semibold">${item.almacen}</span><span class="flex flex-row items-center gap-1"><div onclick="deletePalet(${item.id});"><svg class="mr-3 w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z" fill="currentColor"/> </svg></div><span class="px-3 py-1 bg-slate-600 rounded-md">${item.timestamp}</span><div class="ml-3" onclick="acceptPalet(${item.id});"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M18 6h2v2h-2V6zm-2 4V8h2v2h-2zm-2 2v-2h2v2h-2zm-2 2h2v-2h-2v2zm-2 2h2v-2h-2v2zm-2 0v2h2v-2H8zm-2-2h2v2H6v-2zm0 0H4v-2h2v2z" fill="currentColor"/> </svg></div></span></div>`;
               });
 
               if (offRouteData.length > 0) {
-                div.innerHTML += `<p class="mt-10 mb-3 font-bold text-xl flex flex-row items-center gap-3"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 2h14v4h6v16H2V2zm18 6h-4v2h2v2h-2v2h2v2h-2v2h2v2h2V8zm-6-4H4v16h2v-2h6v2h2V4zM6 6h2v2H6V6zm6 0h-2v2h2V6zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2z" fill="currentColor"/> </svg>Últimos Palets recibidos</p>`;
+                div.innerHTML += `<p class="mt-10 mb-3 font-bold text-xl flex flex-row items-center justify-between gap-3"><span class="flex flex-row items-center gap-1"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 2h14v4h6v16H2V2zm18 6h-4v2h2v2h-2v2h2v2h-2v2h2v2h2V8zm-6-4H4v16h2v-2h6v2h2V4zM6 6h2v2H6V6zm6 0h-2v2h2V6zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2z" fill="currentColor"/> </svg>Últimos palets recibidos</span><span class="opacity-60 font-medium">(${offRouteData.length})</span></p>`;
               }
 
               const lastTwoOffRouteData = offRouteData.slice(-2);
@@ -526,32 +524,6 @@ console.log(BACKEND_URL);
     }
   });
 
-  // Close send modal
-  document.getElementById("closeSend").addEventListener("click", function () {
-    document.getElementById("sendModal").classList.add("hidden");
-  });
-
-  // Close receive modal
-  document
-    .getElementById("closeReceive")
-    .addEventListener("click", function () {
-      document.getElementById("receiveModal").classList.add("hidden");
-    });
-
-  // Open center select modal
-  document
-    .getElementById("openCenterSelect")
-    .addEventListener("click", function () {
-      document.getElementById("centerSelectModal").classList.remove("hidden");
-    });
-
-  // Close center select modal
-  document
-    .getElementById("closeCenterSelect")
-    .addEventListener("click", function () {
-      document.getElementById("centerSelectModal").classList.add("hidden");
-    });
-
   // Send or receive data
   document.getElementById("send").addEventListener("click", function () {
     localStorage.setItem("mode", "1");
@@ -582,7 +554,7 @@ console.log(BACKEND_URL);
     const form = event.target;
     const barcode = localStorage.getItem("barcode");
     if (!barcode) {
-      const newBarcode = prompt("Please enter the barcode:");
+      const newBarcode = prompt("Por favor introduce el código de verificación:");
       if (!newBarcode) {
         event.preventDefault();
         return;
@@ -610,7 +582,7 @@ console.log(BACKEND_URL);
   async function getCode() {
     let code = localStorage.getItem("barcode");
     if (!code) {
-      code = prompt("Please enter the verification code:");
+      code = prompt("Por favor introduce el código de verificación:");
       if (code) {
         localStorage.setItem("barcode", code);
       }
@@ -628,7 +600,7 @@ console.log(BACKEND_URL);
     const data = await response.json();
     if (data.expired) {
       localStorage.removeItem("barcode");
-      alert("The verification code is incorrect or has expired.");
+      alert("El código de verificación es incorrecto o ha expirado.");
       return false;
     } else {
       return true;
@@ -637,7 +609,7 @@ console.log(BACKEND_URL);
 
   function deletePalet(id) {
     const barcode = localStorage.getItem("barcode");
-    if (confirm("Are you sure you want to delete this palet?")) {
+    if (confirm("¿Estás seguro de que quieres DESCARTAR el palet?")) {
       fetch(`${BACKEND_URL}/esborrar-palet`, {
         method: "POST",
         headers: {
@@ -658,7 +630,7 @@ console.log(BACKEND_URL);
 
   function acceptPalet(id) {
     const barcode = localStorage.getItem("barcode");
-    if (confirm("Are you sure you want to accept this palet?")) {
+    if (confirm("¿Estás seguro de que quieres ACEPTAR el palet?")) {
       fetch(`${BACKEND_URL}/acceptar-palet`, {
         method: "POST",
         headers: {
@@ -675,6 +647,27 @@ console.log(BACKEND_URL);
           }
         });
     }
+  }
+
+  function openmodal(id) {
+      document.getElementById(id).classList.remove("hidden");
+  }
+
+  function closemodal(id, id2) {
+    document.getElementById(id2).classList.remove("slideup");
+    document.getElementById(id2).classList.add("slideout");
+
+    document.getElementById(id).classList.remove("fadein");
+    document.getElementById(id).classList.add("fadeout");
+
+    setTimeout(() => {
+      document.getElementById(id).classList.add("hidden");
+      document.getElementById(id2).classList.remove("slideout");
+      document.getElementById(id2).classList.add("slideup");
+
+      document.getElementById(id).classList.remove("fadeout");
+      document.getElementById(id).classList.add("fadein");
+    }, 300);
   }
 </script>
 
@@ -774,7 +767,7 @@ console.log(BACKEND_URL);
     opacity: 0.3;
     display: inline-block;
     vertical-align: middle;
-    margin-right: 0.15rem; /* Adjust the margin as needed */
+    margin-right: 0.15rem;
   }
 
   .beforecheck::before {
@@ -786,6 +779,33 @@ console.log(BACKEND_URL);
     filter:invert(1);
     display: inline-block;
     vertical-align: middle;
-    margin-right: 0.15rem; /* Adjust the margin as needed */
+    margin-right: 0.15rem;
+  }
+
+  .fadeout {
+    animation: fadeout 0.3s ease forwards;
+  }
+
+  .slideout {
+    animation: slideout2 0.3s ease;
+  }
+
+  @keyframes slideout2 {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(100%);
+    }
+  }
+
+  .huerotate {
+    animation: hue-rotate 5s linear infinite;
+  }
+
+  @keyframes hue-rotate {
+    100% {
+      filter: hue-rotate(360deg);
+    }
   }
 </style>

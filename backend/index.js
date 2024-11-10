@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const pgp = require('pg-promise')();
+const path = require('path');
 
 const db = pgp(process.env.DATABASE_URL || 'postgres://username:password@localhost:5432/reparto');
 const redirectURL = process.env.REDIRECT_URL || 'http://localhost:4321';
@@ -11,6 +12,7 @@ const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "/public")));
 
 app.post('/upload', (req, res) => {
     const form = req.body;
@@ -178,6 +180,30 @@ app.post('/verificar-article', (req, res) => {
         .catch(error => {
             console.error('Error receiving data from the database', error);
             res.status(500).json({ message: 'Error al recibir datos de la base de datos' });
+        });
+});
+
+app.post('/esborrar-article', (req, res) => {
+    const form = req.body;
+    verifyCodeAdmin(form.code)
+        .then(isValid => {
+            if (isValid) {
+                db.none('DELETE FROM articulos WHERE id = $1', [form.delete])
+                    .then(() => {
+                        console.log('Data sent to the database');
+                        res.redirect(redirectURL + '/admin?message=Artículo eliminado con éxito');
+                    })
+                    .catch(error => {
+                        console.error('Error sending data to the database', error);
+                        res.redirect(redirectURL + '/admin?message=Error al eliminar el artículo');
+                    });
+            } else {
+                res.redirect(redirectURL + '/admin?message=Error: Código de verificación inválido o expirado');
+            }
+        })
+        .catch(error => {
+            console.error('Error verifying code:', error);
+            res.redirect(redirectURL + '/admin?message=Error al verificar el código de verificación');
         });
 });
 

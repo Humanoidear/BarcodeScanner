@@ -4,9 +4,9 @@ import Layout from "../layouts/Layout.astro";
 const BACKEND_URL = import.meta.env.BACKEND_URL;
 ---
 
-<Layout title="Admin | Barcode Scanner" />
+<Layout title="Admin | DANAscan" />
 <main class="h-screen left-1/2 -translate-x-1/2 max-w-[1300px] relative">
-  <p id="BACKEND_URL" class="hidden">{ BACKEND_URL }</p>
+  <p id="BACKEND_URL" class="hidden">{BACKEND_URL}</p>
   <div
     id="notification"
     class="hidetime top-20 right-3 bg-green-500 text-left text-white p-2 rounded-xl text-center flex flex-row items-center gap-3 hidden pointer-events-none z-20 absolute"
@@ -24,15 +24,20 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   </div>
   <div class="px-4 py-4 flex flex-row items-center justify-between">
     <div class="flex flex-row items-center gap-3">
-      <img src="/DANAscan-logo.png" alt="DANAscan" class="h-32 w-28 object-cover" />
-    <div class="opacity-0 sm:opacity-100 flex flex-col items-start gap-1">
-      <h1 class="text-3xl text-white font-bold">Panel de administrador</h1>
-      <p class="opacity-60 text-white text-lg">DANAscan</p>
-    </div>
+      <img
+        src="/DANAscan-logo.png"
+        alt="DANAscan"
+        class="huerotate h-32 w-28 object-cover"
+      />
+      <div class="opacity-0 sm:opacity-100 flex flex-col items-start gap-1">
+        <h1 class="text-3xl text-white font-bold">Panel de administrador</h1>
+        <p class="opacity-60 text-white text-lg">DANAscan</p>
+      </div>
     </div>
     <div class="flex flex-row gap-3">
       <div
         id="openSettings"
+        onclick="openmodal('settingsModal');"
         class="p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-center text-white relative"
       >
         <svg
@@ -48,6 +53,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       </div>
       <div
         id="openPassword"
+        onclick="openmodal('passwordModal');"
         class="p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-center text-white relative"
       >
         <svg
@@ -165,11 +171,14 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   >
     <div
       id="closePassword"
+      onclick="closemodal('passwordModal', 'passwordModal');"
       class="bg-gradient-to-tr from-green-600 to-blue-700 hue-rotate-animation rounded-t-3xl p-6 w-full h-full flex flex-col items-center justify-between"
     >
       <div></div>
       <div class="max-w-[700px]">
-        <p id="pwdHeading" class="mb-3 text-white text-2xl font-semibold">Código en vigor</p>
+        <p id="pwdHeading" class="mb-3 text-white text-2xl font-semibold">
+          Código en vigor
+        </p>
         <h1
           id="pwd"
           class="w-full p-6 text-6xl text-white text-center font-black rounded-2xl bg-white/5"
@@ -185,10 +194,10 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
 
   <div
     id="settingsModal"
-    class="fadein hidden fixed inset-0 bg-gray-700 bg-opacity-0 flex items-end justify-center"
+    class="fadein top-0 left-0 hidden fixed inset-0 bg-gray-700 bg-opacity-0 flex items-end justify-center"
   >
     <button
-      id="closeSettings"
+      onclick="closemodal('settingsModal', 'settingsPane');"
       class="top-[25px] right-[15px] w-14 h-14 bg-red-400 text-white rounded-2xl absolute"
       ><svg
         class="scale-75"
@@ -203,7 +212,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     >
     <div
       id="settingsPane"
-      class="slideup bg-gray-900 rounded-t-3xl p-6 w-full flex flex-col items-center"
+      class="slideup bg-gray-900 rounded-t-3xl p-6 w-full max-h-screen flex flex-col items-center overflow-scroll"
     >
       <div class="w-full max-w-[700px]">
         <div class="mb-7 text-white flex flex-row items-center gap-3">
@@ -271,7 +280,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
             </form>
           </div>
         </div>
-
+        <hr class="w-full border-white/10 my-6" />
         <h3 class="mb-3 text-xl text-white font-semibold">Añadir centro</h3>
         <form
           action={`${BACKEND_URL}/afegir-centre`}
@@ -306,6 +315,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
             >Eliminar</button
           >
         </form>
+        <hr class="w-full border-white/10 my-6" />
         <h3 class="mt-6 mb-3 text-xl text-white font-semibold">
           Añadir artículo
         </h3>
@@ -332,6 +342,22 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
             type="submit"
             class="w-full py-2 bg-green-500 text-white rounded-t-md rounded-b-2xl"
             >Añadir</button
+          >
+        </form>
+        <h3 class="mt-6 mb-3 text-xl text-white font-semibold">
+          Eliminar artículo
+        </h3>
+        <form
+          action={`${BACKEND_URL}/esborrar-article`}
+          method="post"
+          enctype="application/x-www-form-urlencoded"
+        >
+          <select id="deleteProduct" name="delete" class="w-full border"
+          ></select>
+          <button
+            type="submit"
+            class="w-full py-2 bg-red-500 text-white rounded-t-md rounded-b-2xl"
+            >Eliminar</button
           >
         </form>
       </div>
@@ -391,15 +417,15 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (!data.message) {
-        document.getElementById("pwd").innerHTML = data.data.code;
-        var date = new Date(data.data.expiration).toLocaleString();
-        document.getElementById("expirationVisual").innerHTML = date;
+          document.getElementById("pwd").innerHTML = data.data.code;
+          var date = new Date(data.data.expiration).toLocaleString();
+          document.getElementById("expirationVisual").innerHTML = date;
         } else {
           document.getElementById("pwdHeading").classList.add("hidden");
           document.getElementById("pwd").innerHTML = "Códigos caducados";
-          document.getElementById("validity").innerHTML = "Por favor, genera un nuevo código.";
+          document.getElementById("validity").innerHTML =
+            "Por favor, genera un nuevo código.";
 
           document.getElementById("notification").innerHTML = data.message;
           document.getElementById("notification").classList.remove("hidden");
@@ -409,34 +435,6 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
         console.error("Error fetching data for dropdowns:", error);
       });
   });
-
-  // Open and close settings modal
-  document
-    .getElementById("openSettings")
-    .addEventListener("click", function () {
-      document.getElementById("settingsModal").classList.remove("hidden");
-    });
-
-  document
-    .getElementById("closeSettings")
-    .addEventListener("click", function () {
-      setTimeout(() => {
-        document.getElementById("settingsModal").classList.add("hidden");
-      }, 300);
-    });
-
-  // Open and close password modal
-  document
-    .getElementById("openPassword")
-    .addEventListener("click", function () {
-      document.getElementById("passwordModal").classList.remove("hidden");
-    });
-
-  document
-    .getElementById("closePassword")
-    .addEventListener("click", function () {
-      document.getElementById("passwordModal").classList.add("hidden");
-    });
 
   document.addEventListener("submit", function (event) {
     const form = event.target;
@@ -485,13 +483,18 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
       data.forEach((item) => {
         const select = document.getElementById("product");
         const option1 = document.createElement("option");
         option1.value = item.id;
         option1.text = item.articulo + " (" + item.lectura + ")";
         select.appendChild(option1);
+
+        const select2 = document.getElementById("deleteProduct");
+        const option2 = document.createElement("option");
+        option2.value = item.id;
+        option2.text = item.articulo + " (" + item.lectura + ")";
+        select2.appendChild(option2);
       });
     })
     .catch((error) => {
@@ -528,7 +531,6 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       });
 
       const data = await response.json();
-      console.log(data);
 
       // Group the results by warehouse
       const groupedData = data.reduce((acc, item) => {
@@ -666,7 +668,6 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     });
 
     const data = await response.json();
-    console.log(data);
     if (data.expired) {
       localStorage.removeItem("adminlogin");
       alert("The verification code is incorrect or has expired.");
@@ -696,7 +697,6 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       }
       expirationDate = new Date(expirationDateInput).toISOString();
     }
-    console.log(expirationDate);
 
     document.getElementById("expiration").value = expirationDate;
 
@@ -704,7 +704,6 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     setTimeout(() => {
       document.getElementById("passwordForm").submit();
     }, 3000);
-
   }
 
   function toggleExpiration() {
@@ -716,6 +715,21 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     } else {
       datePickerContainer.classList.add("hidden");
     }
+  }
+
+  function openmodal(id) {
+      document.getElementById(id).classList.remove("hidden");
+  }
+
+  function closemodal(id, id2) {
+    document.getElementById(id2).classList.remove("slideup");
+    document.getElementById(id2).classList.add("slideout");
+
+    setTimeout(() => {
+      document.getElementById(id).classList.add("hidden");
+      document.getElementById(id2).classList.remove("slideout");
+      document.getElementById(id2).classList.add("slideup");
+    }, 300);
   }
 </script>
 
@@ -785,6 +799,32 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   @keyframes hue-rotate {
     100% {
       filter: hue-rotate(360deg);
+    }
+  }
+
+  .slideout {
+    animation: slide-out 0.3s ease;
+  }
+
+  @keyframes slide-out {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(100%);
+    }
+  }
+
+  .fadeout {
+    animation: fadeout 0.3s ease forwards;
+  }
+
+  @keyframes fadeout {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
     }
   }
 </style>
