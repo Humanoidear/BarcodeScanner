@@ -3,23 +3,27 @@ version: '3'
 services:
   postgres:
     image: postgres:14-alpine
+    container_name: danascan-postgres
+    restart: always
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./BarcodeScanner/schema.sql:/schema.sql
     networks:
       - db_access
     ports:
-      - "127.0.0.1:1111:5432"
+      - "5432:5432"
     environment:
-      - POSTGRES_USER=username
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=danascan
+      - POSTGRES_PASSWORD=Ld9aZvQV5c8xfP
 
   barcode:
     build: BarcodeScanner
+    container_name: danascan-barcode
+    restart: always
     depends_on:
       - postgres
     ports:
-      - "127.0.0.1:1112:3000"
+      - "443:443"
     networks:
       - internal
       - db_access

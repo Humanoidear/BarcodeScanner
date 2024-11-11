@@ -21,7 +21,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: articulos; Type: TABLE; Schema: public; Owner: username
+-- Name: articulos; Type: TABLE; Schema: public; Owner: danascan
 --
 
 CREATE TABLE public.articulos (
@@ -31,10 +31,10 @@ CREATE TABLE public.articulos (
 );
 
 
-ALTER TABLE public.articulos OWNER TO username;
+ALTER TABLE public.articulos OWNER TO danascan;
 
 --
--- Name: articulos_id_seq; Type: SEQUENCE; Schema: public; Owner: username
+-- Name: articulos_id_seq; Type: SEQUENCE; Schema: public; Owner: danascan
 --
 
 CREATE SEQUENCE public.articulos_id_seq
@@ -46,17 +46,17 @@ CREATE SEQUENCE public.articulos_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.articulos_id_seq OWNER TO username;
+ALTER SEQUENCE public.articulos_id_seq OWNER TO danascan;
 
 --
--- Name: articulos_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: username
+-- Name: articulos_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: danascan
 --
 
 ALTER SEQUENCE public.articulos_id_seq OWNED BY public.articulos.id;
 
 
 --
--- Name: centro; Type: TABLE; Schema: public; Owner: username
+-- Name: centro; Type: TABLE; Schema: public; Owner: danascan
 --
 
 CREATE TABLE public.centro (
@@ -65,10 +65,10 @@ CREATE TABLE public.centro (
 );
 
 
-ALTER TABLE public.centro OWNER TO username;
+ALTER TABLE public.centro OWNER TO danascan;
 
 --
--- Name: centro_id_seq; Type: SEQUENCE; Schema: public; Owner: username
+-- Name: centro_id_seq; Type: SEQUENCE; Schema: public; Owner: danascan
 --
 
 CREATE SEQUENCE public.centro_id_seq
@@ -80,17 +80,17 @@ CREATE SEQUENCE public.centro_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.centro_id_seq OWNER TO username;
+ALTER SEQUENCE public.centro_id_seq OWNER TO danascan;
 
 --
--- Name: centro_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: username
+-- Name: centro_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: danascan
 --
 
 ALTER SEQUENCE public.centro_id_seq OWNED BY public.centro.id;
 
 
 --
--- Name: codigo; Type: TABLE; Schema: public; Owner: username
+-- Name: codigo; Type: TABLE; Schema: public; Owner: danascan
 --
 
 CREATE TABLE public.codigo (
@@ -99,10 +99,10 @@ CREATE TABLE public.codigo (
 );
 
 
-ALTER TABLE public.codigo OWNER TO username;
+ALTER TABLE public.codigo OWNER TO danascan;
 
 --
--- Name: codigoadmin; Type: TABLE; Schema: public; Owner: username
+-- Name: codigoadmin; Type: TABLE; Schema: public; Owner: danascan
 --
 
 CREATE TABLE public.codigoadmin (
@@ -111,10 +111,10 @@ CREATE TABLE public.codigoadmin (
 );
 
 
-ALTER TABLE public.codigoadmin OWNER TO username;
+ALTER TABLE public.codigoadmin OWNER TO danascan;
 
 --
--- Name: reparto; Type: TABLE; Schema: public; Owner: username
+-- Name: reparto; Type: TABLE; Schema: public; Owner: danascan
 --
 
 CREATE TABLE public.reparto (
@@ -127,10 +127,10 @@ CREATE TABLE public.reparto (
 );
 
 
-ALTER TABLE public.reparto OWNER TO username;
+ALTER TABLE public.reparto OWNER TO danascan;
 
 --
--- Name: reparto_id_seq; Type: SEQUENCE; Schema: public; Owner: username
+-- Name: reparto_id_seq; Type: SEQUENCE; Schema: public; Owner: danascan
 --
 
 CREATE SEQUENCE public.reparto_id_seq
@@ -142,38 +142,38 @@ CREATE SEQUENCE public.reparto_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.reparto_id_seq OWNER TO username;
+ALTER SEQUENCE public.reparto_id_seq OWNER TO danascan;
 
 --
--- Name: reparto_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: username
+-- Name: reparto_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: danascan
 --
 
 ALTER SEQUENCE public.reparto_id_seq OWNED BY public.reparto.id;
 
 
 --
--- Name: articulos id; Type: DEFAULT; Schema: public; Owner: username
+-- Name: articulos id; Type: DEFAULT; Schema: public; Owner: danascan
 --
 
 ALTER TABLE ONLY public.articulos ALTER COLUMN id SET DEFAULT nextval('public.articulos_id_seq'::regclass);
 
 
 --
--- Name: centro id; Type: DEFAULT; Schema: public; Owner: username
+-- Name: centro id; Type: DEFAULT; Schema: public; Owner: danascan
 --
 
 ALTER TABLE ONLY public.centro ALTER COLUMN id SET DEFAULT nextval('public.centro_id_seq'::regclass);
 
 
 --
--- Name: reparto id; Type: DEFAULT; Schema: public; Owner: username
+-- Name: reparto id; Type: DEFAULT; Schema: public; Owner: danascan
 --
 
 ALTER TABLE ONLY public.reparto ALTER COLUMN id SET DEFAULT nextval('public.reparto_id_seq'::regclass);
 
 
 --
--- Name: articulos articulos_pkey; Type: CONSTRAINT; Schema: public; Owner: username
+-- Name: articulos articulos_pkey; Type: CONSTRAINT; Schema: public; Owner: danascan
 --
 
 ALTER TABLE ONLY public.articulos
@@ -181,7 +181,7 @@ ALTER TABLE ONLY public.articulos
 
 
 --
--- Name: centro centro_pkey; Type: CONSTRAINT; Schema: public; Owner: username
+-- Name: centro centro_pkey; Type: CONSTRAINT; Schema: public; Owner: danascan
 --
 
 ALTER TABLE ONLY public.centro
@@ -189,7 +189,7 @@ ALTER TABLE ONLY public.centro
 
 
 --
--- Name: reparto reparto_pkey; Type: CONSTRAINT; Schema: public; Owner: username
+-- Name: reparto reparto_pkey; Type: CONSTRAINT; Schema: public; Owner: danascan
 --
 
 ALTER TABLE ONLY public.reparto

@@ -17,6 +17,6 @@ COPY backend/ ./backend
 WORKDIR /app/backend
 RUN npm install
 
-EXPOSE 3000
+EXPOSE 443
 
 CMD ["node", "index.js"]

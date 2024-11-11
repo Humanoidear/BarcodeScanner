@@ -1,4 +1,7 @@
 const express = require('express');
+const fs = require('fs');
+const https = require('https');
+const helmet = require('helmet');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const pgp = require('pg-promise')();
@@ -11,11 +14,24 @@ const db = pgp({ connectionString: process.env.DATABASE_URL });
 const redirectURL = process.env.REDIRECT_URL;
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 443;
+
+https.createServer({
+    cert: fs.readFileSync('danascan.cert'),
+    key: fs.readFileSync('danascan.key')
+}, app).listen(port, function() {
+    console.log(`Servidor https corriendo en el puerto ${port}`);
+});
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
+app.use(helmet());
+app.use(helmet.hsts({
+    maxAge: 300,
+    includeSubDomains: true,
+    preload: true
+}));
 
 app.post('/upload', (req, res) => {
     const form = req.body;
@@ -520,6 +536,6 @@ function verifyCodeAdmin(code) {
 
 
 // Start the server
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+//app.listen(port, () => {
+//    console.log(`Server is running on https://localhost:${port}`);
+//});
