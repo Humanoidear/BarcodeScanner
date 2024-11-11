@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./BarcodeScanner/schema.sql:/schema.sql
+    networks:
+      - db_access
+    ports:
+      - "127.0.0.1:1111:5432"
+    environment:
+      - POSTGRES_USER=username
+      - POSTGRES_PASSWORD=password
+
+  barcode:
+    build: BarcodeScanner
+    depends_on:
+      - postgres
+    ports:
+      - "127.0.0.1:1112:3000"
+    networks:
+      - internal
+      - db_access
+
+networks:
+  internal:
+  db_access:
+
+volumes:
+  pgdata:
