@@ -26,19 +26,19 @@ app.post('/upload', (req, res) => {
                 db.none('INSERT INTO reparto (lectura, timestamp, almacen) VALUES ($1, $2, $3)', [form.barcode, form.timestamp, form.quantity])
                     .then(() => {
                         console.log('Data sent to the database');
-                        res.redirect(redirectURL + '?message=Datos del formulario recibidos y almacenados en la base de datos');
+                        res.redirect(redirectURL + '/?message=Datos del formulario recibidos y almacenados en la base de datos');
                     })
                     .catch(error => {
                         console.error('Error sending data to the database', error);
-                        res.redirect(redirectURL + '?message=Error al enviar datos a la base de datos');
+                        res.redirect(redirectURL + '/?message=Error al enviar datos a la base de datos');
                     });
             } else {
-                res.redirect(redirectURL + '/login?message=Error: Código de verificación inválido o expirado');
+                res.redirect(redirectURL + '/?message=Error: Código de verificación inválido o expirado');
             }
         })
         .catch(error => {
             console.error('Error verifying code:', error);
-            res.redirect(redirectURL + '/login?message=Error al verificar el código de verificación');
+            res.redirect(redirectURL + '/?message=Error al verificar el código de verificación');
         });
 });
 
@@ -132,7 +132,7 @@ app.post('/afegir-article', (req, res) => {
                     .then(existing => {
                         if (existing) {
                             // If the lectura value already exists, redirect with an error message
-                            res.redirect(redirectURL + '?message=Error: El código de barras ya existe');
+                            res.redirect(redirectURL + '/?message=Error: El código de barras ya existe');
                         } else {
                             // If the lectura value does not exist, proceed with the insertion
                             db.none('INSERT INTO articulos (lectura, articulo) VALUES ($1, $2)', [form.barcode, form.article])
@@ -236,7 +236,7 @@ app.post('/esborrar-palet', (req, res) => {
                     })
                     .catch(error => {
                         console.error('Error deleting data from the database', error);
-                        res.redirect(redirectURL + '?message=Error al eliminar el palet');
+                        res.redirect(redirectURL + '/?message=Error al eliminar el palet');
                     });
             } else {
                 res.json({ message: 0 });

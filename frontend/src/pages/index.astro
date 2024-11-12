@@ -9,7 +9,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     <p id="BACKEND_URL" class="hidden">{ BACKEND_URL }</p>
     <div
       id="notification"
-      class="hidetime w-full top-0 bg-green-500 text-left text-white p-2 px-3 rounded-b-xl inline-flex items-center justify-center gap-1 hidden pointer-events-none z-20 absolute"
+      class="hidetime w-full top-0 bg-green-500 text-left text-white p-2 px-3 rounded-b-xl inline-flex items-center justify-center gap-1 hidden pointer-events-none z-50 absolute"
     >
       <svg
         class="w-8 h-8"
@@ -43,7 +43,10 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           </div>
         </div>
         <div
-          onclick="openmodal('centerSelectModal')"
+          onclick="
+import { set } from "astro:schema";
+
+openmodal('centerSelectModal')"
           class="p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-center text-white relative"
         >
           <svg
@@ -93,6 +96,52 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       </button>
     </div>
   </main>
+
+  <div
+    id="loginModal"
+    class="hidden fadein fixed inset-0 bg-gray-700 flex flex-col items-center justify-end z-40"
+  >
+  <p id="loginError" class="fadein m-3 w-[calc(100%-50px)] bg-red-400 rounded-2xl p-2 text-white text-center hidden">Código incorrecto o expirado.</p>
+    <div
+      id="loginPane"
+      class="slideup bg-gray-900 rounded-t-3xl p-6 w-full max-w-[600px] text-white flex flex-col items-center gap-1"
+    >
+    <img
+    src="/DANAscan-logo.png"
+    alt="DANAscan"
+    class="huerotate h-32 w-28 object-cover"
+  />
+      <h2 class="w-full text-3xl font-bold mb-6">Identificación</h2>
+      <div
+        class="w-full flex flex-col items-center gap-1"
+      >
+        <input
+          type="password"
+          name="password"
+          class="bg-slate-600 border-none rounded-t-2xl rounded-b-md p-2 w-full h-14 text-white"
+          placeholder="Código"
+        />
+        <button
+          id="loginSubmit"
+          class="w-full h-14 rounded-t-md rounded-b-2xl bg-green-400 hover:bg-green-500 flex flex-col items-center justify-center"
+        >
+          <svg
+            class="scale-50"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M5 3H3v18h18V3H5zm0 2h14v14H5V5zm4 7H7v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2H9v-2z"
+              fill="currentColor"></path>
+          </svg>
+        </button>
+      </div>
+      <p class="beforesvg mt-3 text-white/30 inline-block items-center">
+       Pregunta al responsable del centro para obtener el código de verificación.
+      </p>
+    </div>
+  </div>
 
   <div
     id="centerSelectModal"
@@ -576,15 +625,24 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   const BACKEND_URL = document.getElementById("BACKEND_URL").textContent;
   document.addEventListener("DOMContentLoaded", async (event) => {
     let isValid = false;
-    while (!isValid) {
-      isValid = await getCode();
+    isValid = await getCode();
+  });
+
+  // Listen for loginSubmit button click
+  document.getElementById("loginSubmit").addEventListener("click", async function () {
+    localStorage.setItem("barcode", document.querySelector("input[name='password']").value);
+    let isValid = false;
+    isValid = await getCode();
+    if (!isValid) {
+      document.getElementById("loginError").classList.remove("hidden");
+      document.getElementById("loginError").innerHTML = "Código incorrecto o expirado.";
     }
   });
 
   async function getCode() {
     let code = localStorage.getItem("barcode");
     if (!code) {
-      code = prompt("Por favor introduce el código de verificación:");
+      // code = prompt("Por favor introduce el código de verificación:");
       if (code) {
         localStorage.setItem("barcode", code);
       }
@@ -602,9 +660,10 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     const data = await response.json();
     if (data.expired) {
       localStorage.removeItem("barcode");
-      alert("El código de verificación es incorrecto o ha expirado.");
+      document.getElementById("loginModal").classList.remove("hidden");
       return false;
     } else {
+      closemodal("loginModal", "loginPane");
       return true;
     }
   }
@@ -656,6 +715,20 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   }
 
   function closemodal(id, id2) {
+    if (id == "centerSelectModal") {
+      const selectedQuantity = localStorage.getItem("selectedQuantity");
+      if (!selectedQuantity) {
+        document.getElementById("notification").innerHTML =
+          "Por favor selecciona un centro.";
+          document.getElementById("notification").classList.add("bg-red-400");  
+        document.getElementById("notification").classList.remove("hidden");
+        setTimeout(() => {
+          document.getElementById("notification").classList.add("hidden");
+          document.getElementById("notification").classList.remove("bg-red-400");
+        }, 3500);
+        return;
+      }
+    }
     document.getElementById(id2).classList.remove("slideup");
     document.getElementById(id2).classList.add("slideout");
 
