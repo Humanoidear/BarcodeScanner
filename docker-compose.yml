@@ -12,9 +12,6 @@ services:
       - db_access
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_USER=danascan
-      - POSTGRES_PASSWORD=Ld9aZvQV5c8xfP
 
   barcode:
     build: BarcodeScanner
