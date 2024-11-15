@@ -17,29 +17,62 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-app.post('/upload', (req, res) => {
+app.post('/upload', async (req, res) => {
     const form = req.body;
     console.log(form);
-    verifyCode(form.code)
-        .then(isValid => {
-            if (isValid) {
-                db.none('INSERT INTO reparto (lectura, timestamp, almacen) VALUES ($1, $2, $3)', [form.barcode, form.timestamp, form.quantity])
-                    .then(() => {
-                        console.log('Data sent to the database');
-                        res.redirect(redirectURL + '/?message=Datos del formulario recibidos y almacenados en la base de datos');
-                    })
-                    .catch(error => {
-                        console.error('Error sending data to the database', error);
-                        res.redirect(redirectURL + '/?message=Error al enviar datos a la base de datos');
-                    });
+    try {
+        const isValid = await verifyCode(form.code);
+        if (isValid) {
+            const isMain = await db.oneOrNone('SELECT id FROM centro WHERE id = $1 AND ismain = true', [form.quantity]);
+            console.log(isMain);
+
+            if (isMain) {
+                // Ensure that there exists at least one fulfilled record with the same lectura value
+                const isFulfilled = await db.any('SELECT 1 FROM reparto WHERE lectura = $1 AND fulfilled = 1', [form.barcode]);
+                if (isFulfilled.length > 0) {
+                    await db.none(`
+                        UPDATE reparto 
+                        SET fulfilled = 2
+                        WHERE id = (
+                            SELECT id 
+                            FROM reparto 
+                            WHERE lectura = $1 
+                            AND fulfilled = 1
+                            ORDER BY id ASC 
+                            LIMIT 1
+                        )
+                    `, [form.barcode]);
+                    res.redirect(redirectURL + '?message=Palet eliminado enviado a reparto');
+                } else {
+                    res.redirect(redirectURL + '?message=No se encuentra este palet en la base de datos, simula un palet recibido para enviar');
+                }
             } else {
-                res.redirect(redirectURL + '/?message=Error: Código de verificación inválido o expirado');
+                await db.none('INSERT INTO reparto (lectura, timestamp, almacen) VALUES ($1, $2, $3)', [form.barcode, form.timestamp, form.quantity]);
+                res.redirect(redirectURL + '?message=Palet recibido y almacenado en la base de datos');
             }
-        })
-        .catch(error => {
-            console.error('Error verifying code:', error);
-            res.redirect(redirectURL + '/?message=Error al verificar el código de verificación');
-        });
+        } else {
+            res.redirect(redirectURL + '?message=Código de verificación inválido o expirado');
+        }
+    } catch (error) {
+        console.error('Error processing request:', error);
+        res.redirect(redirectURL + '?message=Error procesando la solicitud');
+    }
+});
+
+app.post('/simular-palet', async (req, res) => {
+    const form = req.body;
+    try {
+        const isValid = await verifyCode(form.code);
+        if (isValid) {
+            await db.none('INSERT INTO reparto (lectura, timestamp, almacen, fulfilled, timestamp_recepcion, issimulated) VALUES ($1, NOW(), $2, 1, NOW(), true)', [form.barcode, form.almacen]);
+            res.json({status: 'success'});
+        } else {
+            res.redirect(redirectURL + '?message=Código de verificación inválido o expirado');
+        }
+    } catch (error) {
+        console.error('Error processing request:', error);
+        res.json({status: 'error'});
+    }
 });
 
 app.post('/afegir-centre', (req, res) => {
@@ -102,24 +135,41 @@ app.post('/esborrar-centre', (req, res) => {
         });
 });
 
-app.post('/verificar', (req, res) => {
+app.post('/verificar', async (req, res) => {
     const form = req.body;
 
-    db.any(`
-                    SELECT r.id, r.lectura, a.articulo AS lectura_nombre, c.centro AS almacen, r.timestamp, r.fulfilled, r.timestamp_recepcion
-                    FROM reparto r
-                    JOIN centro c ON r.almacen = c.id
-                    JOIN articulos a ON r.lectura = a.lectura
-                    WHERE r.lectura = $1
-                `, [form.barcode])
-        .then(data => {
-            console.log('Data received from the database');
-            res.json(data);
-        })
-        .catch(error => {
-            console.error('Error receiving data from the database', error);
-            res.status(500).json({ message: 'Error al recibir datos de la base de datos' });
+    try {
+        // Fetch the product name associated with the barcode
+        const product = await db.oneOrNone('SELECT articulo FROM articulos WHERE lectura = $1', [form.barcode]);
+        if (!product) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+
+        // Fetch the warehouse name associated with the almacen
+        const warehouse = await db.oneOrNone('SELECT centro FROM centro WHERE id = $1', [form.almacen]);
+        if (!warehouse) {
+            return res.status(404).json({ message: 'Almacén no encontrado' });
+        }
+
+        // Fetch the records from the reparto table
+        const data = await db.any(`
+            SELECT r.id, r.lectura, a.articulo AS lectura_nombre, c.centro AS almacen, r.timestamp, r.fulfilled, r.timestamp_recepcion
+            FROM reparto r
+            JOIN centro c ON r.almacen = c.id
+            JOIN articulos a ON r.lectura = a.lectura
+            WHERE r.lectura = $1 AND r.almacen = $2
+        `, [form.barcode, form.almacen]);
+
+        // Return the response with the product name, warehouse name, and data
+        res.json({
+            product: product.articulo,
+            warehouse: warehouse.centro,
+            data: data
         });
+    } catch (error) {
+        console.error('Error receiving data from the database', error);
+        res.status(500).json({ message: 'Error al recibir datos de la base de datos' });
+    }
 });
 
 app.post('/afegir-article', (req, res) => {
@@ -131,10 +181,8 @@ app.post('/afegir-article', (req, res) => {
                 db.oneOrNone('SELECT 1 FROM articulos WHERE lectura = $1', [form.barcode])
                     .then(existing => {
                         if (existing) {
-                            // If the lectura value already exists, redirect with an error message
                             res.redirect(redirectURL + '/?message=Error: El código de barras ya existe');
                         } else {
-                            // If the lectura value does not exist, proceed with the insertion
                             db.none('INSERT INTO articulos (lectura, articulo) VALUES ($1, $2)', [form.barcode, form.article])
                                 .then(() => {
                                     console.log('Data sent to the database');
@@ -248,28 +296,38 @@ app.post('/esborrar-palet', (req, res) => {
         });
 });
 
-app.post('/acceptar-palet', (req, res) => {
+app.post('/acceptar-palet', async (req, res) => {
     const form = req.body;
-    verifyCode(form.code)
-        .then(isValid => {
-            if (isValid) {
-                db.none('UPDATE reparto SET fulfilled = 1, timestamp_recepcion = NOW() WHERE id = $1', [form.id])
-                    .then(() => {
-                        console.log('Data updated in the database');
-                        res.json({ message: 1 });
-                    })
-                    .catch(error => {
-                        console.error('Error updating data in the database', error);
-                        res.status(500).json({ message: 'Error al aceptar el palet' });
-                    });
+    try {
+        const isValid = await verifyCode(form.code);
+        if (isValid) {
+            // Find the row with the lowest id that can be updated
+            const row = await db.oneOrNone(`
+                SELECT id 
+                FROM reparto 
+                WHERE almacen = $1 
+                AND lectura = $2
+                AND fulfilled = 0
+                ORDER BY id ASC 
+                LIMIT 1
+            `, [form.almacen, form.product]);
+
+            if (row) {
+                // Update the found row to fulfilled = 1
+                await db.none('UPDATE reparto SET fulfilled = 1, timestamp_recepcion = NOW() WHERE id = $1', [row.id]);
+                console.log('Data updated in the database');
+                res.json({ message: 1 });
             } else {
-                res.json({ message: 0 });
+                // If no such row exists, return an error message
+                res.status(400).json({ message: 'No rows found that can be updated' });
             }
-        })
-        .catch(error => {
-            console.error('Error verifying code:', error);
-            res.redirect(redirectURL + '/?message=Error al verificar el código de verificación');
-        });
+        } else {
+            res.json({ message: 0 });
+        }
+    } catch (error) {
+        console.error('Error processing request:', error);
+        res.status(500).json({ message: 'Error al aceptar el palet' });
+    }
 });
 
 app.post('/codi-expirat', (req, res) => {
@@ -360,13 +418,21 @@ app.post('/filtrar', (req, res) => {
                     JOIN centro c ON r.almacen = c.id
                     JOIN articulos a ON r.lectura = a.lectura
                     WHERE ($1::int IS NULL OR a.id = $1::int)
-                    AND ($2::int IS NULL OR r.almacen = $2::int)
-                    AND ($3::int IS NULL OR r.fulfilled = $3::int)
+                    AND (
+                        $2::int IS NULL 
+                        OR r.almacen = $2::int 
+                        OR ($2::int IS NULL AND r.fulfilled IN (0, 1))
+                    )
+                    AND (
+                        $3::int IS NULL 
+                        OR (r.fulfilled = $3::int) 
+                        OR ($3::int IS NULL AND r.fulfilled IN (0, 1))
+                    )
                     AND ($4::date IS NULL OR r.timestamp >= $4)
                     AND ($5::date IS NULL OR r.timestamp <= $5)
                 `;
                 const params = [
-        form.product ? parseInt(form.product, 10) : null,
+                    form.product ? parseInt(form.product, 10) : null,
                     form.warehouse ? parseInt(form.warehouse, 10) : null,
                     form.status ? parseInt(form.status, 10) : null,
                     after,
@@ -517,7 +583,45 @@ function verifyCodeAdmin(code) {
         });
 }
 
+app.post('/afegir-palet-manual', async (req, res) => {
+    const form = req.body;
+    try {
+        const isValid = await verifyCodeAdmin(form.code);
+        if (isValid) {
+            // Fetch the corresponding lectura value from the articulos table
+            const articulo = await db.oneOrNone('SELECT lectura FROM articulos WHERE id = $1', [form.product]);
+            if (articulo) {
+                for (let i = 0; i < form.quantity; i++) {
+                    await db.none('INSERT INTO reparto (lectura, timestamp, almacen) VALUES ($1, NOW(), $2)', [articulo.lectura, form.warehouse]);
+                }
+                res.redirect(redirectURL + '/admin?message=Palets añadidos correctamente');
+            } else {
+                res.redirect(redirectURL + '/admin?message=Producto no encontrado');
+            }
+        } else {
+            res.redirect(redirectURL + '/admin?message=Código de verificación inválido o expirado');
+        }
+    } catch (error) {
+        console.error('Error processing request:', error);
+        res.redirect(redirectURL + '/admin?message=Error al procesar la solicitud');
+    }
+});
 
+app.post('/esborrar-palet-manual', async (req, res) => {
+    const form = req.body;
+    try {
+        const isValid = await verifyCodeAdmin(form.code);
+        if (isValid) {
+            await db.none('DELETE FROM reparto WHERE id = $1', [form.delete]);
+            res.redirect(redirectURL + '/admin?message=Palet eliminado correctamente');
+        } else {
+            res.redirect(redirectURL + '/admin?message=Código de verificación inválido o expirado');
+        }
+    } catch (error) {
+        console.error('Error processing request:', error);
+        res.redirect(redirectURL + '/admin?message=Error al procesar la solicitud');
+    }
+});
 
 // Start the server
 app.listen(port, () => {

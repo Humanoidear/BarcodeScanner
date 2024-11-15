@@ -22,6 +22,11 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           fill="currentColor"></path>
       </svg>
     </div>
+    <div id="truckStop" onclick="stopTruck();" class="mt-6 left-1/2 -translate-x-1/2 w-[calc(100%-30px)] max-w-[600px] rounded-2xl bg-slate-800 p-2 flex flex-row items-center gap-1 hidden z-10 absolute">
+      <div class="w-full p-2 rounded-xl text-center text-white relative bg-red-400 hover:bg-red-500">
+      Parar de descargar palets de <span id="truckStopWarehouse" class="font-bold"></span>
+      </div>
+    </div>
     <div
       class="left-1/2 top-6 -translate-x-1/2 w-[calc(100vw-30px)] h-[calc(100dvh-50px)] max-w-[600px] flex flex-col items-center gap-3 relative"
     >
@@ -30,16 +35,16 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           class="w-full rounded-2xl bg-slate-800 p-2 flex flex-row items-center gap-1"
         >
           <div
-            id="send"
-            class="w-1/2 p-2 rounded-l-xl rounded-r-md text-center text-white relative"
-          >
-            Enviar
-          </div>
-          <div
             id="receive"
-            class="w-1/2 p-2 rounded-l-md rounded-r-xl text-center text-white relative"
+            class="w-full p-2 rounded-l-xl rounded-r-md text-center text-white hidden relative"
           >
             Recibir
+          </div>
+          <div
+            id="send"
+            class="w-full p-2 rounded-l-md rounded-r-xl text-center text-white relative"
+          >
+            Enviar
           </div>
         </div>
         <div
@@ -95,12 +100,55 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   </main>
 
   <div
+    id="truckSelectModal"
+    class="hidden fadein fixed inset-0 flex flex-col items-center justify-between z-40"
+  >
+  <div onclick="stopTruck();" class="mt-6 w-[calc(100%-30px)] max-w-[600px] rounded-2xl bg-slate-800 p-2 flex flex-row items-center gap-1">
+    <div id="receive" class="w-full p-2 rounded-xl text-center text-white relative bg-red-400 hover:bg-red-500">
+    Cancelar
+    </div>
+  </div>
+    <div
+      id="truckPane"
+      class="slideup w-full max-w-[600px] p-6 bg-gray-900 rounded-t-3xl text-white flex flex-col items-center"
+    >
+      <h3 class="w-full text-3xl font-bold mb-6">
+        ¿De qué centro provienen los palets?
+      </h3>
+      <select
+        id="truckSelect"
+        class="mb-1 bg-slate-700 hover:bg-slate-600 border-none rounded-t-2xl rounded-b-md p-2 w-full h-14 text-white transition-all relative"
+      >
+        <option value="" disabled selected>Selecciona un centro</option>
+      </select>
+      <button
+        onclick="closeTruckModal();"
+        class="w-full h-14 rounded-t-md rounded-b-2xl bg-green-400 hover:bg-green-500 flex flex-col items-center justify-center"
+      >
+        <svg
+          class="scale-50"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M5 3H3v18h18V3H5zm0 2h14v14H5V5zm4 7H7v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2H9v-2z"
+            fill="currentColor"></path>
+        </svg>
+      </button>
+      <p class="beforesvg w-full mt-3 text-white/30 inline-block items-center">
+        Pregunta al conductor del camión para obtener el centro de origen.
+      </p>
+    </div>
+  </div>
+
+  <div
     id="comboSelectModal"
-    class="hidden fadein fixed inset-0 bg-gray-700 bg-opacity-75 flex flex-col items-center justify-end z-50"
+    class="hidden fadein fixed inset-0 bg-gray-700 bg-opacity-75 flex flex-col items-center justify-end z-40"
   >
     <div
       id="comboPane"
-      class="slideup w-full p-6 bg-gray-900 rounded-t-3xl text-white flex flex-col items-center"
+      class="slideup w-full max-w-[600px] p-6 bg-gray-900 rounded-t-3xl text-white flex flex-col items-center"
     >
       <h3 id="selectQuestion" class="w-full text-3xl font-bold mb-6"></h3>
       <div class="w-full flex flex-row items-center gap-1">
@@ -131,7 +179,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   >
     <p
       id="loginError"
-      class="fadein m-3 w-[calc(100%-50px)] bg-red-400 rounded-2xl p-2 text-white text-center hidden"
+      class="fadein m-3 w-[calc(100%-50px)] max-w-[550px] bg-red-400 rounded-2xl p-2 text-white text-center hidden"
     >
       Código incorrecto o expirado.
     </p>
@@ -180,7 +228,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     class="hidden fadein fixed inset-0 bg-gray-700 bg-opacity-75 flex flex-col items-center justify-between"
   >
     <div
-      class="slidedown w-full p-6 bg-gray-900 rounded-b-3xl text-white flex flex-col items-center"
+      class="slidedown w-full max-w-[600px] p-6 bg-gray-900 rounded-b-3xl text-white flex flex-col items-center"
     >
       <img
         src="/DANAscan-logo-complete.png"
@@ -203,7 +251,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
 
     <div
       id="centerPane"
-      class="slideup bg-gray-900 rounded-t-3xl p-6 w-full text-white"
+      class="slideup bg-gray-900 rounded-t-3xl p-6 w-full max-w-[600px] text-white"
     >
       <h2 class="text-3xl font-bold mb-6">Seleccionar centro</h2>
       <select
@@ -252,7 +300,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     >
     <div
       id="sendPane"
-      class="slideup bg-gray-900 rounded-t-3xl p-6 w-full text-white"
+      class="slideup bg-gray-900 rounded-t-3xl p-6 w-full max-w-[600px] text-white"
     >
       <div
         id="barcode-result"
@@ -326,7 +374,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
 
   <div
     id="receiveModal"
-    class="fadein hidden fixed inset-0 bg-gray-700 bg-opacity-75 flex items-end justify-center overflow-scroll"
+    class="fadein hidden fixed inset-0 bg-gray-700 bg-opacity-75 flex items-end justify-center overflow-scroll z-40"
   >
     <button
       onclick="closemodal('receiveModal', 'receivePane')"
@@ -344,9 +392,9 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     >
     <div
       id="receivePane"
-      class="max-h-screen slideup bg-gray-900 rounded-t-3xl p-6 w-full text-white overflow-scroll"
+      class="max-h-screen slideup bg-gray-900 rounded-t-3xl p-6 w-full max-w-[600px] text-white overflow-scroll"
     >
-      <p class="text-4xl font-bold mb-6" id="receiveNum"></p>
+      <p class="text-4xl font-bold mb-6 flex flex-col items-center" id="receiveNum"></p>
       <div id="receiveList" class="flex flex-col gap-1"></div>
     </div>
   </div>
@@ -433,7 +481,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
               document.getElementById("barcode-input").value = barcode;
               document.getElementById("timestamp-input").value = timestamp;
               document.getElementById("barcode-result").innerHTML =
-                `<h2 class="mb-0 text-3xl font-bold">${data[0].articulo}</h2><span class="text-lg opacity-30 font-normal">( ${barcode} )</span>`;
+                `<h2 class="mb-0 text-3xl font-bold">${data[0].articulo}</h2><span class="text-lg opacity-30 font-normal">(${barcode})</span>`;
             });
         }
         document.querySelector("#barcode-input").value = barcode;
@@ -445,7 +493,9 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: `barcode=${barcode}`,
+            body: `barcode=${barcode}&almacen=${localStorage.getItem(
+              "truckSelect"
+            )}`,
           })
             .then((response) => response.json())
             .then((data) => {
@@ -453,67 +503,52 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
                 .getElementById("receiveModal")
                 .classList.remove("hidden");
 
-              if (data.length == 0) {
-                document.getElementById("receiveNum").textContent =
-                  "No existen palets con el código " + barcode;
-                return;
-              }
-              document.getElementById("receiveNum").innerHTML =
-                data[0].lectura_nombre +
-                " <span class='text-lg opacity-60 font-medium'>(" +
-                barcode +
-                ")</span><br><p class='w-[calc(100%-70px)] font-medium text-lg opacity-60 inline-block'>Para marcar un item como recibido, pulsa <span class='beforecheck'>en</span> cualquiera del centro proveniente.</p>";
+              // Get a list of all the centers in the data array, each center will be shown once
+              const centers = data.data
+                .map((item) => item.almacen)
+                .filter((value, index, self) => self.indexOf(value) === index);
 
               const receiveList = document.getElementById("receiveList");
               receiveList.innerHTML = "";
 
-              const onRouteData = data.filter((item) => item.fulfilled == 0);
-              const offRouteData = data.filter((item) => item.fulfilled == 1);
+              const onRouteData = data.data.filter(
+                (item) => item.fulfilled == 0
+              );
               const div = document.getElementById("receiveList");
 
+              document.getElementById("receiveNum").innerHTML = `
+                <h2 class="mb-0 text-3xl text-center font-bold">${data.product}</h2><span class="text-lg opacity-30 font-normal">(${barcode}) | ${onRouteData.length} ${onRouteData.length == 1 ? "palet" : "palets"} en ruta</span>
+                `;
+
               if (onRouteData.length > 0) {
-                div.innerHTML += `<p class="w-full mb-3 font-bold text-xl flex flex-row items-center justify-between gap-3"><span class="flex flex-row items-center gap-1"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 2h2v2h2v2h-2v10H8V6H6V4h2V2zM4 8V6h2v2H4zm2 10v2H4v2H2V8h2v10h2zm0 0h2v-2H6v2zm6 0h-2v-2h2v2zm2-10V6h-2v2h2zm2 0h-2v10h-2v2h2v2h2v-2h2v-2h2v-2h2V2h-2v2h-2v2h-2v2zm0 0h2V6h2v10h-2v2h-2V8z" fill="currentColor"/> </svg> Palets en ruta</span><span class="opacity-60 font-medium">(${onRouteData.length})</span></p>`;
+                div.innerHTML += `
+                  <button
+                    type="submit"
+                    class="w-full h-14 rounded-2xl bg-green-400 hover:bg-green-500 flex flex-col items-center justify-center"
+                    onclick="acceptPaletSend(${barcode}, ${localStorage.getItem("truckSelect")});"
+                  >
+                    <svg
+                      class="scale-50 text-white"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M5 3H3v18h18V3H5zm0 2h14v14H5V5zm4 7H7v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2H9v-2z"
+                        fill="currentColor"
+                      ></path>
+                    </svg>
+                  </button>
+                  <p class="beforesvg mt-3 text-white/30 inline-block items-center">
+                    Se marcará como entregado un palet de <span class="text-white/60">${data.product}</span> en ruta de <span class="text-white/60">${data.warehouse}</span>.
+                  </p>
+                `;
+              } else {
+                console.log("No palets found");
+                document.getElementById("receivePane").classList.add("bg-orange-900");
+                div.innerHTML += `<div class="bg-orange-800 rounded-2xl px-5 py-3 text-white text-lg flex flex-col items-center justify-between gap-3">Este palet de ${data.product} (${data.warehouse}) no ha sido contabilizado, ¿quieres recibirlo de todos modos?
+                <br><button onclick="simulateSend('${barcode}');" class="w-full h-14 rounded-2xl bg-green-400 hover:bg-green-500 font-bold flex flex-col items-center justify-center mt-3">Enviar de todos modos</button></div>`;
               }
-
-              onRouteData.forEach((item) => {
-                var rounded = "rounded-md";
-                if (onRouteData.length == 1) {
-                  rounded = "rounded-2xl";
-                } else if (onRouteData.indexOf(item) == 0) {
-                  rounded = "rounded-t-2xl rounded-b-md";
-                } else if (
-                  onRouteData.indexOf(item) ==
-                  onRouteData.length - 1
-                ) {
-                  rounded = "rounded-t-md rounded-b-2xl";
-                }
-
-                item.timestamp = new Date(item.timestamp).toLocaleString();
-                div.innerHTML += `<div class="bg-slate-700 ${rounded} px-5 py-3 text-white flex flex-col sm:flex-row items-center justify-between gap-3"><span class="text-2xl sm:text-xl font-semibold">${item.almacen}</span><span class="flex flex-row items-center gap-1"><div onclick="deletePalet(${item.id});"><svg class="mr-3 w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z" fill="currentColor"/> </svg></div><span class="px-3 py-1 bg-slate-600 rounded-md">${item.timestamp}</span><div class="ml-3" onclick="acceptPalet(${item.id});"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M18 6h2v2h-2V6zm-2 4V8h2v2h-2zm-2 2v-2h2v2h-2zm-2 2h2v-2h-2v2zm-2 2h2v-2h-2v2zm-2 0v2h2v-2H8zm-2-2h2v2H6v-2zm0 0H4v-2h2v2z" fill="currentColor"/> </svg></div></span></div>`;
-              });
-
-              if (offRouteData.length > 0) {
-                div.innerHTML += `<p class="mt-10 mb-3 font-bold text-xl flex flex-row items-center justify-between gap-3"><span class="flex flex-row items-center gap-1"><svg class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 2h14v4h6v16H2V2zm18 6h-4v2h2v2h-2v2h2v2h-2v2h2v2h2V8zm-6-4H4v16h2v-2h6v2h2V4zM6 6h2v2H6V6zm6 0h-2v2h2V6zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2z" fill="currentColor"/> </svg>Últimos palets recibidos</span><span class="opacity-60 font-medium">(${offRouteData.length})</span></p>`;
-              }
-
-              const lastTwoOffRouteData = offRouteData.slice(-2);
-
-              lastTwoOffRouteData.forEach((item, index) => {
-                var rounded = "rounded-md";
-                if (lastTwoOffRouteData.length == 1) {
-                  rounded = "rounded-2xl";
-                } else if (index == 0) {
-                  rounded = "rounded-t-2xl rounded-b-md";
-                } else if (index == lastTwoOffRouteData.length - 1) {
-                  rounded = "rounded-t-md rounded-b-2xl";
-                }
-
-                item.timestamp = new Date(item.timestamp).toLocaleString();
-                item.timestamp_recepcion = new Date(
-                  item.timestamp_recepcion
-                ).toLocaleString();
-                div.innerHTML += `<div class="bg-slate-700 ${rounded} px-5 py-3 text-white flex flex-col sm:flex-row items-center justify-between gap-3"><span class="text-2xl sm:text-xl font-semibold">${item.almacen}</span><span class="flex flex-row items-center gap-1"><span class="px-3 py-1 bg-slate-600 rounded-md"><span class="flex flex-row items-center gap-1">${item.timestamp} <svg class="w-5 h-5 mx-3" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M4 11v2h12v2h2v-2h2v-2h-2V9h-2v2H4zm10-4h2v2h-2V7zm0 0h-2V5h2v2zm0 10h2v-2h-2v2zm0 0h-2v2h2v-2z" fill="currentColor"/> </svg> ${item.timestamp_recepcion}</span></span></div>`;
-              });
             });
         }
 
@@ -541,6 +576,10 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
 
   // Fetch data for the quantity select element
   document.addEventListener("DOMContentLoaded", (event) => {
+    if (localStorage.getItem("truckSelect")) {
+      document.getElementById("truckStop").classList.remove("hidden");
+      document.getElementById("truckStopWarehouse").textContent = localStorage.getItem("truckSelectName");
+    }
     const select = document.getElementById("quantity");
 
     // Fetch data for the dropdowns
@@ -558,14 +597,38 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           option1.text = item.centro;
           select.appendChild(option1);
 
+          const truckSelect = document.getElementById("truckSelect");
+          const truckOption = document.createElement("option");
+          truckOption.value = item.id;
+          truckOption.text = item.centro;
+          truckSelect.appendChild(truckOption);
+
           const deleteOption = document.createElement("option");
           deleteOption.value = item.id;
           deleteOption.text = item.centro;
         });
 
+        
+
         // Set the dropdown to the value stored in localStorage
         const savedQuantity = localStorage.getItem("selectedQuantity");
         if (savedQuantity) {
+          // If the center in localStorage coincides with a center in the dropdown which has isMain "true", show "receive" button
+          const center = data.find((item) => item.id == savedQuantity);
+          if (center.ismain) {
+            console.log("show receive");
+            document.getElementById("receive").classList.remove("hidden");
+          } else {
+            document.getElementById("send").classList.remove("rounded-l-md");
+            document.getElementById("send").classList.remove("rounded-l-md");
+            document.getElementById("send").classList.add("bg-slate-600/5");
+            document.getElementById("send").classList.add("rounded-xl");
+            document.getElementById("send").classList.remove("text-center");
+            document.getElementById("send").classList.add("text-left");
+            document.getElementById("send").innerHTML = "<span class='beforesvg text-white/30'>Enviando desde <span class='text-white font-bold'>" + center.centro + "</span></span>";
+            localStorage.setItem("mode", "1");
+            mode1();
+          }
           select.value = savedQuantity;
         }
       })
@@ -581,7 +644,60 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       const selectedQuantity = select.value;
       document.getElementById("quantity-1").value = selectedQuantity;
       document.getElementById("quantity-2").value = selectedQuantity;
+
+      fetch(`${BACKEND_URL}/afegir-centre`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // Set the dropdown to the value stored in localStorage
+          const savedQuantity = localStorage.getItem("selectedQuantity");
+          if (savedQuantity) {
+            // If the center in localStorage coincides with a center in the dropdown which has isMain "true", show "receive" button
+            const center = data.find((item) => item.id == savedQuantity);
+            console.log(center);
+            if (center.ismain) {
+              console.log("show receive");
+              document.getElementById("receive").classList.remove("hidden");
+              document.getElementById("send").classList.remove("rounded-xl");
+              document.getElementById("send").classList.add("rounded-l-md");
+              document.getElementById("send").classList.remove("bg-slate-600/5");
+              document.getElementById("send").classList.remove("text-left");
+              document.getElementById("send").classList.add("text-center");
+              document.getElementById("send").innerHTML = "Enviar";
+            } else {
+              document.getElementById("receive").classList.add("hidden");
+              document.getElementById("send").classList.remove("rounded-l-md");
+            document.getElementById("send").classList.add("bg-slate-600/5");
+            document.getElementById("send").classList.add("rounded-xl");
+            document.getElementById("send").classList.remove("text-center");
+            document.getElementById("send").classList.add("text-left");
+            document.getElementById("send").innerHTML = "<span class='beforesvg text-white/30'>Enviando desde <span class='text-white font-bold'>" + center.centro + "</span></span>";
+              localStorage.setItem("mode", "1");
+              mode1();
+            }
+            select.value = savedQuantity;
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching data for dropdowns:", error);
+        });
     };
+
+    const truckSelect = document.getElementById("truckSelect");
+
+    // Change the selected option in truckSelect to the one in localStorage
+    if (localStorage.getItem("truckSelect")) {
+      truckSelect.value = localStorage.getItem("truckSelect");
+    }
+
+    truckSelect.addEventListener("change", (event) => {
+      localStorage.setItem("truckSelect", event.target.value);
+      localStorage.setItem("truckSelectName", event.target.selectedOptions[0].textContent);
+    });
 
     if (!localStorage.getItem("selectedQuantity")) {
       document.getElementById("centerSelectModal").classList.remove("hidden");
@@ -629,6 +745,8 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     document.getElementById("send").classList.add("bg-green-500");
     document.getElementById("receive").classList.remove("bg-green-500");
     document.getElementById("receive").classList.add("bg-slate-700");
+    document.getElementById("truckStop").classList.add("hidden");
+    localStorage.removeItem("truckSelect");
   }
 
   function mode2() {
@@ -636,6 +754,13 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     document.getElementById("receive").classList.add("bg-green-500");
     document.getElementById("send").classList.remove("bg-green-500");
     document.getElementById("send").classList.add("bg-slate-700");
+    if (localStorage.getItem("truckSelect") == null) {
+      document.getElementById("truckSelectModal").classList.remove("hidden");
+    } else {
+      document.getElementById("truckStop").classList.remove("hidden");
+      document.getElementById("truckStopWarehouse").textContent =
+        localStorage.getItem("truckSelectName");
+    }
   }
 
   // Hijack all form submissions to add the "codigo" parameter, it is in localStorage, if not, prompt the user to add it
@@ -755,35 +880,14 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       });
   }
 
-  function acceptPalet(id) {
-    document.getElementById("comboSelectModal").classList.remove("hidden");
-    document.getElementById("selectQuestion").textContent =
-      "¿Quieres ACEPTAR el palet?";
-    document.getElementById("yes").innerHTML = `<button
-          onclick="acceptPaletSend(${id})"
-          class="w-full h-14 rounded-l-md rounded-r-2xl bg-green-400 hover:bg-green-500 flex flex-col items-center justify-center"
-        >
-          <svg
-            class="scale-75"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M18 6h2v2h-2V6zm-2 4V8h2v2h-2zm-2 2v-2h2v2h-2zm-2 2h2v-2h-2v2zm-2 2h2v-2h-2v2zm-2 0v2h2v-2H8zm-2-2h2v2H6v-2zm0 0H4v-2h2v2z"
-              fill="currentColor"></path>
-          </svg>
-        </button>`;
-  }
-
-  function acceptPaletSend(id) {
+  function acceptPaletSend(productid, warehouseid) {
     const barcode = localStorage.getItem("barcode");
     fetch(`${BACKEND_URL}/acceptar-palet`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: `id=${id}&code=${barcode}`,
+      body: `product=${productid}&almacen=${warehouseid}&code=${barcode}`,
     })
       .then((response) => response.json())
       .then((data) => {
@@ -801,6 +905,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   }
 
   function closemodal(id, id2) {
+    document.getElementById("receivePane").classList.remove("bg-orange-400");
     if (id == "centerSelectModal") {
       const selectedQuantity = localStorage.getItem("selectedQuantity");
       if (!selectedQuantity) {
@@ -831,6 +936,45 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       document.getElementById(id).classList.remove("fadeout");
       document.getElementById(id).classList.add("fadein");
     }, 300);
+  }
+
+  function stopTruck() {
+    localStorage.removeItem("truckSelect");
+    document.getElementById("truckStop").classList.add("hidden");
+    localStorage.setItem("mode", "1");
+    window.location.href = window.location.pathname;
+  }
+
+  function simulateSend(barcode) {
+    fetch(`${BACKEND_URL}/simular-palet`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `barcode=${barcode}&almacen=${localStorage.getItem("truckSelect")}&code=${localStorage.getItem("barcode")}`,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status == "success") {
+          closemodal("receiveModal", "receivePane");
+        }
+      });
+  }
+
+  function closeTruckModal() {
+    if (localStorage.getItem("truckSelect")) {
+      document.getElementById("truckStop").classList.remove("hidden");
+      document.getElementById("truckStopWarehouse").textContent = localStorage.getItem("truckSelectName");
+      closemodal('truckSelectModal', 'truckPane');
+    } else {
+      document.getElementById("notification").innerHTML = "Por favor selecciona un centro.";
+      document.getElementById("notification").classList.add("bg-red-400");
+      document.getElementById("notification").classList.remove("hidden");
+      setTimeout(() => {
+        document.getElementById("notification").classList.add("hidden");
+        document.getElementById("notification").classList.remove("bg-red-400");
+      }, 3500);
+    }
   }
 </script>
 
@@ -917,9 +1061,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       transform: translateY(0);
     }
   }
-</style>
 
-<style is:global>
   .beforesvg::before {
     content: "";
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6 mr-1" fill="none"><path d="M3 3h16v2H5v14h14v2H3V3zm18 0h-2v18h2V3zM11 15h2v2h-2v-2zm2-8h-2v6h2V7z" fill="currentColor"/></svg>');
