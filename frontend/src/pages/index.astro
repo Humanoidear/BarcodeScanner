@@ -404,6 +404,37 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   const BACKEND_URL = document.getElementById("BACKEND_URL").textContent;
   import Quagga from "@ericblade/quagga2";
 
+  const DOM = {
+  capture: document.getElementById("capture"),
+  captureIcon: document.getElementById("capture-icon"),
+  centerLocation: document.getElementById("centerLocation"),
+  centerSelectModal: document.getElementById("centerSelectModal"),
+  sendModal: document.getElementById("sendModal"),
+  sendForm: document.getElementById("send-form"),
+  barcodeResult: document.getElementById("barcode-result"),
+  errNotFoundSendForm: document.getElementById("errNotFound-send-form"),
+  errNotFound: document.getElementById("errNotFound"),
+  timestampInput1: document.getElementById("timestamp-input"),
+  timestampInput2: document.getElementById("timestamp-input-2"),
+  barcodeInput: document.getElementById("barcode-input"),
+  quantitySelect: document.getElementById("quantity"),
+  quantity1: document.getElementById("quantity-1"),
+  quantity2: document.getElementById("quantity-2"),
+  truckSelect: document.getElementById("truckSelect"),
+  truckSelectModal: document.getElementById("truckSelectModal"),
+  receiveModal: document.getElementById("receiveModal"),
+  receiveList: document.getElementById("receiveList"),
+  receiveNum: document.getElementById("receiveNum"),
+  notification: document.getElementById("notification"),
+  loginSubmit: document.getElementById("loginSubmit"),
+  loginError: document.getElementById("loginError"),
+  loginModal: document.getElementById("loginModal"),
+  truckStop: document.getElementById("truckStop"),
+  truckStopWarehouse: document.getElementById("truckStopWarehouse"),
+  sendButton: document.getElementById("send"),
+  receiveButton: document.getElementById("receive"),
+};
+
   // Function to initialize and start the Quagga scanner
   function startScanner() {
     Quagga.init(
@@ -432,17 +463,17 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   window.addEventListener("load", startScanner);
 
   // Capture barcode when the button is clicked
-  document.getElementById("capture").addEventListener("click", function () {
+  DOM.capture.addEventListener("click", function () {
     Quagga.onDetected(function (result) {
       if (result && result.codeResult && result.codeResult.code) {
         const barcode = result.codeResult.code;
         const timestamp = new Date().toISOString();
 
         if (localStorage.getItem("mode") == "1") {
-          document.getElementById("sendModal").classList.remove("hidden");
+          DOM.sendModal.classList.remove("hidden");
 
-          document.getElementById("centerLocation").textContent =
-            document.getElementById("quantity").selectedOptions[0].textContent;
+          DOM.centerLocation.textContent =
+            DOM.quantitySelect.selectedOptions[0].textContent;
 
           // Verify the barcode
           fetch(`${BACKEND_URL}/verificar-article`, {
@@ -455,8 +486,8 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
             .then((response) => response.json())
             .then((data) => {
               if (data.length == 0) {
-                document.getElementById("send-form").classList.add("hidden");
-                document.getElementById("barcode-result").innerHTML =
+                DOM.sendForm.classList.add("hidden");
+                DOM.barcodeResult.innerHTML =
                   `<h2 class="mb-0 w-full text-3xl font-bold">No se ha encontrado el artículo</h2><span class="w-full text-lg opacity-30 font-normal">( ${barcode} )</span><br><p class="w-full">Verifique que se ha escaneado correctamente, o elija un artículo de la lista.</p>`;
                 document
                   .getElementById("errNotFound-send-form")
@@ -475,12 +506,12 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
                     });
                   });
 
-                document.getElementById("timestamp-input-2").value = timestamp;
+                DOM.timestampInput2.value = timestamp;
                 return;
               }
-              document.getElementById("barcode-input").value = barcode;
-              document.getElementById("timestamp-input").value = timestamp;
-              document.getElementById("barcode-result").innerHTML =
+              DOM.barcodeInput.value = barcode;
+              DOM.timestampInput1.value = timestamp;
+              DOM.barcodeResult.innerHTML =
                 `<h2 class="mb-0 text-3xl font-bold">${data[0].articulo}</h2><span class="text-lg opacity-30 font-normal">(${barcode})</span>`;
             });
         }
@@ -503,20 +534,15 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
                 .getElementById("receiveModal")
                 .classList.remove("hidden");
 
-              // Get a list of all the centers in the data array, each center will be shown once
-              const centers = data.data
-                .map((item) => item.almacen)
-                .filter((value, index, self) => self.indexOf(value) === index);
-
-              const receiveList = document.getElementById("receiveList");
+              const receiveList = DOM.receiveList;
               receiveList.innerHTML = "";
 
               const onRouteData = data.data.filter(
                 (item) => item.fulfilled == 0
               );
-              const div = document.getElementById("receiveList");
+              const div = DOM.receiveList;
 
-              document.getElementById("receiveNum").innerHTML = `
+              DOM.receiveNum.innerHTML = `
                 <h2 class="mb-0 text-3xl text-center font-bold">${data.product}</h2><span class="text-lg opacity-30 font-normal">(${barcode}) | ${onRouteData.length} ${onRouteData.length == 1 ? "palet" : "palets"} en ruta</span>
                 `;
 
@@ -544,17 +570,16 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
                   </p>
                 `;
               } else {
-                console.log("No palets found");
-                document.getElementById("receivePane").classList.add("bg-orange-900");
-                div.innerHTML += `<div class="bg-orange-800 rounded-2xl px-5 py-3 text-white text-lg flex flex-col items-center justify-between gap-3">Este palet de ${data.product} (${data.warehouse}) no ha sido contabilizado, ¿quieres recibirlo de todos modos?
-                <br><button onclick="simulateSend('${barcode}');" class="w-full h-14 rounded-2xl bg-green-400 hover:bg-green-500 font-bold flex flex-col items-center justify-center mt-3">Enviar de todos modos</button></div>`;
+                DOM.receiveModal.classList.add("bg-orange-400");
+                div.innerHTML += `<div class="bg-slate-800 rounded-2xl px-5 py-3 text-white text-lg flex flex-col items-center justify-between gap-3">Este palet de ${data.product} (${data.warehouse}) no ha sido contabilizado, ¿quieres recibirlo de todos modos?
+                <br><button onclick="simulateSend('${barcode}');" class="w-full h-14 rounded-2xl bg-green-400 hover:bg-green-500 font-bold flex flex-col items-center justify-center mt-3">Recibir de todos modos</button></div>`;
               }
             });
         }
 
         // Change the capture button icon to red and allow reshoot
-        const captureButton = document.getElementById("capture");
-        const captureIcon = document.getElementById("capture-icon");
+        const captureButton = DOM.capture;
+        const captureIcon = DOM.captureIcon;
         captureButton.classList.remove("bg-blue-400", "hover:bg-blue-500");
         captureButton.classList.add("bg-red-400", "hover:bg-red-500");
         captureIcon.innerHTML =
@@ -577,10 +602,10 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   // Fetch data for the quantity select element
   document.addEventListener("DOMContentLoaded", (event) => {
     if (localStorage.getItem("truckSelect")) {
-      document.getElementById("truckStop").classList.remove("hidden");
-      document.getElementById("truckStopWarehouse").textContent = localStorage.getItem("truckSelectName");
+      DOM.truckStop.classList.remove("hidden");
+      DOM.truckStopWarehouse.textContent = localStorage.getItem("truckSelectName");
     }
-    const select = document.getElementById("quantity");
+    const select = DOM.quantitySelect;
 
     // Fetch data for the dropdowns
     fetch(`${BACKEND_URL}/afegir-centre`, {
@@ -597,18 +622,12 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           option1.text = item.centro;
           select.appendChild(option1);
 
-          const truckSelect = document.getElementById("truckSelect");
+          const truckSelect = DOM.truckSelect;
           const truckOption = document.createElement("option");
           truckOption.value = item.id;
           truckOption.text = item.centro;
           truckSelect.appendChild(truckOption);
-
-          const deleteOption = document.createElement("option");
-          deleteOption.value = item.id;
-          deleteOption.text = item.centro;
         });
-
-        
 
         // Set the dropdown to the value stored in localStorage
         const savedQuantity = localStorage.getItem("selectedQuantity");
@@ -617,15 +636,12 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           const center = data.find((item) => item.id == savedQuantity);
           if (center.ismain) {
             console.log("show receive");
-            document.getElementById("receive").classList.remove("hidden");
+            DOM.receiveButton.classList.remove("hidden");
           } else {
-            document.getElementById("send").classList.remove("rounded-l-md");
-            document.getElementById("send").classList.remove("rounded-l-md");
-            document.getElementById("send").classList.add("bg-slate-600/5");
-            document.getElementById("send").classList.add("rounded-xl");
-            document.getElementById("send").classList.remove("text-center");
-            document.getElementById("send").classList.add("text-left");
-            document.getElementById("send").innerHTML = "<span class='beforesvg text-white/30'>Enviando desde <span class='text-white font-bold'>" + center.centro + "</span></span>";
+            const sendButton = DOM.sendButton;
+            sendButton.classList.remove("rounded-l-md", "text-center");
+            sendButton.classList.add("bg-slate-600/5", "rounded-xl", "text-left");
+            DOM.sendButton.innerHTML = "<span class='beforesvg text-white/30'>Enviando desde <span class='text-white font-bold'>" + center.centro + "</span></span>";
             localStorage.setItem("mode", "1");
             mode1();
           }
@@ -642,8 +658,8 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       select.value = event.target.value;
 
       const selectedQuantity = select.value;
-      document.getElementById("quantity-1").value = selectedQuantity;
-      document.getElementById("quantity-2").value = selectedQuantity;
+      DOM.quantity1.value = selectedQuantity;
+      DOM.quantity2.value = selectedQuantity;
 
       fetch(`${BACKEND_URL}/afegir-centre`, {
         method: "GET",
@@ -658,24 +674,19 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           if (savedQuantity) {
             // If the center in localStorage coincides with a center in the dropdown which has isMain "true", show "receive" button
             const center = data.find((item) => item.id == savedQuantity);
-            console.log(center);
+            const sendButton = DOM.sendButton;
+            const receiveButton = DOM.receiveButton;
+            
             if (center.ismain) {
-              console.log("show receive");
-              document.getElementById("receive").classList.remove("hidden");
-              document.getElementById("send").classList.remove("rounded-xl");
-              document.getElementById("send").classList.add("rounded-l-md");
-              document.getElementById("send").classList.remove("bg-slate-600/5");
-              document.getElementById("send").classList.remove("text-left");
-              document.getElementById("send").classList.add("text-center");
-              document.getElementById("send").innerHTML = "Enviar";
+              receiveButton.classList.remove("hidden");
+              sendButton.classList.remove("rounded-xl", "bg-slate-600/5", "text-left");
+              sendButton.classList.add("rounded-l-md", "text-center");
+              sendButton.innerHTML = "Enviar";
             } else {
-              document.getElementById("receive").classList.add("hidden");
-              document.getElementById("send").classList.remove("rounded-l-md");
-            document.getElementById("send").classList.add("bg-slate-600/5");
-            document.getElementById("send").classList.add("rounded-xl");
-            document.getElementById("send").classList.remove("text-center");
-            document.getElementById("send").classList.add("text-left");
-            document.getElementById("send").innerHTML = "<span class='beforesvg text-white/30'>Enviando desde <span class='text-white font-bold'>" + center.centro + "</span></span>";
+              receiveButton.classList.add("hidden");
+              sendButton.classList.remove("rounded-l-md", "text-center");
+              sendButton.classList.add("rounded-xl", "bg-slate-600/5", "text-left");
+              sendButton.innerHTML = `<span class='beforesvg text-white/30'>Enviando desde <span class='text-white font-bold'>${center.centro}</span></span>`;
               localStorage.setItem("mode", "1");
               mode1();
             }
@@ -687,7 +698,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
         });
     };
 
-    const truckSelect = document.getElementById("truckSelect");
+    const truckSelect = DOM.truckSelect;
 
     // Change the selected option in truckSelect to the one in localStorage
     if (localStorage.getItem("truckSelect")) {
@@ -700,11 +711,11 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     });
 
     if (!localStorage.getItem("selectedQuantity")) {
-      document.getElementById("centerSelectModal").classList.remove("hidden");
+      DOM.centerSelectModal.classList.remove("hidden");
     } else {
       const selectedQuantity = localStorage.getItem("selectedQuantity");
-      document.getElementById("quantity-1").value = selectedQuantity;
-      document.getElementById("quantity-2").value = selectedQuantity;
+      DOM.quantity1.value = selectedQuantity;
+      DOM.quantity2.value = selectedQuantity;
     }
 
     select.addEventListener("change", saveSelectedQuantity);
@@ -724,42 +735,52 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     const urlParams = new URLSearchParams(window.location.search);
     const notification = urlParams.get("message");
     if (notification) {
-      document.getElementById("notification").innerHTML += notification;
-      document.getElementById("notification").classList.remove("hidden");
+      DOM.notification.innerHTML += notification;
+      DOM.notification.classList.remove("hidden");
     }
   });
 
   // Send or receive data
-  document.getElementById("send").addEventListener("click", function () {
+  DOM.sendButton.addEventListener("click", function () {
     localStorage.setItem("mode", "1");
     mode1();
   });
 
-  document.getElementById("receive").addEventListener("click", function () {
+  DOM.receiveButton.addEventListener("click", function () {
     localStorage.setItem("mode", "2");
     mode2();
   });
 
   function mode1() {
-    document.getElementById("send").classList.remove("bg-slate-700");
-    document.getElementById("send").classList.add("bg-green-500");
-    document.getElementById("receive").classList.remove("bg-green-500");
-    document.getElementById("receive").classList.add("bg-slate-700");
-    document.getElementById("truckStop").classList.add("hidden");
+    const sendButton = DOM.sendButton;
+    const receiveButton = DOM.receiveButton;
+    const truckStop = DOM.truckStop;
+  
+    sendButton.classList.remove("bg-slate-700");
+    sendButton.classList.add("bg-green-500");
+    receiveButton.classList.remove("bg-green-500");
+    receiveButton.classList.add("bg-slate-700");
+    truckStop.classList.add("hidden");
     localStorage.removeItem("truckSelect");
   }
-
+  
   function mode2() {
-    document.getElementById("receive").classList.remove("bg-slate-700");
-    document.getElementById("receive").classList.add("bg-green-500");
-    document.getElementById("send").classList.remove("bg-green-500");
-    document.getElementById("send").classList.add("bg-slate-700");
+    const sendButton = DOM.sendButton;
+    const receiveButton = DOM.receiveButton;
+    const truckStop = DOM.truckStop;
+    const truckSelectModal = DOM.truckSelectModal;
+    const truckStopWarehouse = DOM.truckStopWarehouse;
+  
+    receiveButton.classList.remove("bg-slate-700");
+    receiveButton.classList.add("bg-green-500");
+    sendButton.classList.remove("bg-green-500");
+    sendButton.classList.add("bg-slate-700");
+  
     if (localStorage.getItem("truckSelect") == null) {
-      document.getElementById("truckSelectModal").classList.remove("hidden");
+      truckSelectModal.classList.remove("hidden");
     } else {
-      document.getElementById("truckStop").classList.remove("hidden");
-      document.getElementById("truckStopWarehouse").textContent =
-        localStorage.getItem("truckSelectName");
+      truckStop.classList.remove("hidden");
+      truckStopWarehouse.textContent = localStorage.getItem("truckSelectName");
     }
   }
 
@@ -793,7 +814,6 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     isValid = await getCode();
   });
 
-  // Listen for loginSubmit button click
   document
     .getElementById("loginSubmit")
     .addEventListener("click", async function () {
@@ -839,47 +859,6 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     }
   }
 
-  function deletePalet(id) {
-    document.getElementById("comboSelectModal").classList.remove("hidden");
-    document.getElementById("selectQuestion").textContent =
-      "¿Quieres DESCARTAR el palet?";
-    document.getElementById("yes").innerHTML = `<button
-          onclick="deletePaletSend(${id})"
-          class="w-full h-14 rounded-l-md rounded-r-2xl bg-green-400 hover:bg-green-500 flex flex-col items-center justify-center"
-        >
-          <svg
-            class="scale-75"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M18 6h2v2h-2V6zm-2 4V8h2v2h-2zm-2 2v-2h2v2h-2zm-2 2h2v-2h-2v2zm-2 2h2v-2h-2v2zm-2 0v2h2v-2H8zm-2-2h2v2H6v-2zm0 0H4v-2h2v2z"
-              fill="currentColor"></path>
-          </svg>
-        </button>`;
-  }
-
-  function deletePaletSend(id) {
-    const barcode = localStorage.getItem("barcode");
-    fetch(`${BACKEND_URL}/esborrar-palet`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: `id=${id}&code=${barcode}`,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.message == 0) {
-          window.location.href = window.location.pathname;
-        } else {
-          closemodal("receiveModal", "receivePane");
-          closemodal("comboSelectModal", "selectQuestion");
-        }
-      });
-  }
-
   function acceptPaletSend(productid, warehouseid) {
     const barcode = localStorage.getItem("barcode");
     fetch(`${BACKEND_URL}/acceptar-palet`, {
@@ -904,37 +883,41 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     document.getElementById(id).classList.remove("hidden");
   }
 
-  function closemodal(id, id2) {
-    document.getElementById("receivePane").classList.remove("bg-orange-400");
-    if (id == "centerSelectModal") {
+    function closemodal(id, id2) {
+    const receiveModal = document.getElementById("receiveModal");
+    const notification = document.getElementById("notification");
+    const modal = document.getElementById(id);
+    const pane = document.getElementById(id2);
+  
+    receiveModal.classList.remove("bg-orange-400");
+  
+    if (id === "centerSelectModal") {
       const selectedQuantity = localStorage.getItem("selectedQuantity");
       if (!selectedQuantity) {
-        document.getElementById("notification").innerHTML =
-          "Por favor selecciona un centro.";
-        document.getElementById("notification").classList.add("bg-red-400");
-        document.getElementById("notification").classList.remove("hidden");
+        notification.innerHTML = "Por favor selecciona un centro.";
+        notification.classList.add("bg-red-400");
+        notification.classList.remove("hidden");
         setTimeout(() => {
-          document.getElementById("notification").classList.add("hidden");
-          document
-            .getElementById("notification")
-            .classList.remove("bg-red-400");
+          notification.classList.add("hidden");
+          notification.classList.remove("bg-red-400");
         }, 3500);
         return;
       }
     }
-    document.getElementById(id2).classList.remove("slideup");
-    document.getElementById(id2).classList.add("slideout");
-
-    document.getElementById(id).classList.remove("fadein");
-    document.getElementById(id).classList.add("fadeout");
-
+  
+    pane.classList.remove("slideup");
+    pane.classList.add("slideout");
+  
+    modal.classList.remove("fadein");
+    modal.classList.add("fadeout");
+  
     setTimeout(() => {
-      document.getElementById(id).classList.add("hidden");
-      document.getElementById(id2).classList.remove("slideout");
-      document.getElementById(id2).classList.add("slideup");
-
-      document.getElementById(id).classList.remove("fadeout");
-      document.getElementById(id).classList.add("fadein");
+      modal.classList.add("hidden");
+      pane.classList.remove("slideout");
+      pane.classList.add("slideup");
+  
+      modal.classList.remove("fadeout");
+      modal.classList.add("fadein");
     }, 300);
   }
 
