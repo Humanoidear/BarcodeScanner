@@ -22,9 +22,17 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           fill="currentColor"></path>
       </svg>
     </div>
-    <div id="truckStop" onclick="stopTruck();" class="mt-6 left-1/2 -translate-x-1/2 w-[calc(100%-30px)] max-w-[600px] rounded-2xl bg-slate-800 p-2 flex flex-row items-center gap-1 hidden z-10 absolute">
-      <div class="w-full p-2 rounded-xl text-center text-white relative bg-red-400 hover:bg-red-500">
-      Parar de descargar palets de <span id="truckStopWarehouse" class="font-bold"></span>
+    <div
+      id="truckStop"
+      onclick="stopTruck();"
+      class="mt-6 left-1/2 -translate-x-1/2 w-[calc(100%-30px)] max-w-[600px] rounded-2xl bg-slate-800 p-2 flex flex-row items-center gap-1 hidden z-10 absolute"
+    >
+      <div
+        class="w-full p-2 rounded-xl text-center text-white relative bg-red-400 hover:bg-red-500"
+      >
+        Parar de descargar palets de <span
+          id="truckStopWarehouse"
+          class="font-bold"></span>
       </div>
     </div>
     <div
@@ -103,11 +111,17 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     id="truckSelectModal"
     class="hidden fadein fixed inset-0 flex flex-col items-center justify-between z-40"
   >
-  <div onclick="stopTruck();" class="mt-6 w-[calc(100%-30px)] max-w-[600px] rounded-2xl bg-slate-800 p-2 flex flex-row items-center gap-1">
-    <div id="receive" class="w-full p-2 rounded-xl text-center text-white relative bg-red-400 hover:bg-red-500">
-    Cancelar
+    <div
+      onclick="stopTruck();"
+      class="mt-6 w-[calc(100%-30px)] max-w-[600px] rounded-2xl bg-slate-800 p-2 flex flex-row items-center gap-1"
+    >
+      <div
+        id="receive"
+        class="w-full p-2 rounded-xl text-center text-white relative bg-red-400 hover:bg-red-500"
+      >
+        Cancelar
+      </div>
     </div>
-  </div>
     <div
       id="truckPane"
       class="slideup w-full max-w-[600px] p-6 bg-gray-900 rounded-t-3xl text-white flex flex-col items-center"
@@ -170,6 +184,29 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
         </button>
         <div id="yes" class="w-1/2"></div>
       </div>
+    </div>
+  </div>
+
+  <div
+    id="errNoServer"
+    class="hidden fadein fixed inset-0 bg-gray-700 flex flex-col items-center justify-end z-50"
+  >
+    <div
+      id="errPane"
+      class="slideup bg-gray-900 rounded-t-3xl p-6 w-full max-w-[600px] text-white flex flex-col items-center gap-1"
+    >
+      <img
+        src="/DANAscan-logo.png"
+        alt="DANAscan"
+        class="huerotate h-32 w-28 object-cover"
+      />
+      <h2 class="w-full text-3xl font-bold mb-6">
+        Error estableciendo una conexión con el servidor
+      </h2>
+      <p class="beforesvg text-white/30 inline-block items-center">
+        Vuelve a intentarlo dentro de unos instantes, y si el problema persiste,
+        contacta con el responsable del centro.
+      </p>
     </div>
   </div>
 
@@ -394,7 +431,11 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       id="receivePane"
       class="max-h-screen slideup bg-gray-900 rounded-t-3xl p-6 w-full max-w-[600px] text-white overflow-scroll"
     >
-      <p class="text-4xl font-bold mb-6 flex flex-col items-center" id="receiveNum"></p>
+      <p
+        class="text-4xl font-bold mb-6 flex flex-col items-center"
+        id="receiveNum"
+      >
+      </p>
       <div id="receiveList" class="flex flex-col gap-1"></div>
     </div>
   </div>
@@ -405,35 +446,35 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   import Quagga from "@ericblade/quagga2";
 
   const DOM = {
-  capture: document.getElementById("capture"),
-  captureIcon: document.getElementById("capture-icon"),
-  centerLocation: document.getElementById("centerLocation"),
-  centerSelectModal: document.getElementById("centerSelectModal"),
-  sendModal: document.getElementById("sendModal"),
-  sendForm: document.getElementById("send-form"),
-  barcodeResult: document.getElementById("barcode-result"),
-  errNotFoundSendForm: document.getElementById("errNotFound-send-form"),
-  errNotFound: document.getElementById("errNotFound"),
-  timestampInput1: document.getElementById("timestamp-input"),
-  timestampInput2: document.getElementById("timestamp-input-2"),
-  barcodeInput: document.getElementById("barcode-input"),
-  quantitySelect: document.getElementById("quantity"),
-  quantity1: document.getElementById("quantity-1"),
-  quantity2: document.getElementById("quantity-2"),
-  truckSelect: document.getElementById("truckSelect"),
-  truckSelectModal: document.getElementById("truckSelectModal"),
-  receiveModal: document.getElementById("receiveModal"),
-  receiveList: document.getElementById("receiveList"),
-  receiveNum: document.getElementById("receiveNum"),
-  notification: document.getElementById("notification"),
-  loginSubmit: document.getElementById("loginSubmit"),
-  loginError: document.getElementById("loginError"),
-  loginModal: document.getElementById("loginModal"),
-  truckStop: document.getElementById("truckStop"),
-  truckStopWarehouse: document.getElementById("truckStopWarehouse"),
-  sendButton: document.getElementById("send"),
-  receiveButton: document.getElementById("receive"),
-};
+    capture: document.getElementById("capture"),
+    captureIcon: document.getElementById("capture-icon"),
+    centerLocation: document.getElementById("centerLocation"),
+    centerSelectModal: document.getElementById("centerSelectModal"),
+    sendModal: document.getElementById("sendModal"),
+    sendForm: document.getElementById("send-form"),
+    barcodeResult: document.getElementById("barcode-result"),
+    errNotFoundSendForm: document.getElementById("errNotFound-send-form"),
+    errNotFound: document.getElementById("errNotFound"),
+    timestampInput1: document.getElementById("timestamp-input"),
+    timestampInput2: document.getElementById("timestamp-input-2"),
+    barcodeInput: document.getElementById("barcode-input"),
+    quantitySelect: document.getElementById("quantity"),
+    quantity1: document.getElementById("quantity-1"),
+    quantity2: document.getElementById("quantity-2"),
+    truckSelect: document.getElementById("truckSelect"),
+    truckSelectModal: document.getElementById("truckSelectModal"),
+    receiveModal: document.getElementById("receiveModal"),
+    receiveList: document.getElementById("receiveList"),
+    receiveNum: document.getElementById("receiveNum"),
+    notification: document.getElementById("notification"),
+    loginSubmit: document.getElementById("loginSubmit"),
+    loginError: document.getElementById("loginError"),
+    loginModal: document.getElementById("loginModal"),
+    truckStop: document.getElementById("truckStop"),
+    truckStopWarehouse: document.getElementById("truckStopWarehouse"),
+    sendButton: document.getElementById("send"),
+    receiveButton: document.getElementById("receive"),
+  };
 
   // Function to initialize and start the Quagga scanner
   function startScanner() {
@@ -487,8 +528,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
             .then((data) => {
               if (data.length == 0) {
                 DOM.sendForm.classList.add("hidden");
-                DOM.barcodeResult.innerHTML =
-                  `<h2 class="mb-0 w-full text-3xl font-bold">No se ha encontrado el artículo</h2><span class="w-full text-lg opacity-30 font-normal">( ${barcode} )</span><br><p class="w-full">Verifique que se ha escaneado correctamente, o elija un artículo de la lista.</p>`;
+                DOM.barcodeResult.innerHTML = `<h2 class="mb-0 w-full text-3xl font-bold">No se ha encontrado el artículo</h2><span class="w-full text-lg opacity-30 font-normal">( ${barcode} )</span><br><p class="w-full">Verifique que se ha escaneado correctamente, o elija un artículo de la lista.</p>`;
                 document
                   .getElementById("errNotFound-send-form")
                   .classList.remove("hidden");
@@ -511,8 +551,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
               }
               DOM.barcodeInput.value = barcode;
               DOM.timestampInput1.value = timestamp;
-              DOM.barcodeResult.innerHTML =
-                `<h2 class="mb-0 text-3xl font-bold">${data[0].articulo}</h2><span class="text-lg opacity-30 font-normal">(${barcode})</span>`;
+              DOM.barcodeResult.innerHTML = `<h2 class="mb-0 text-3xl font-bold">${data[0].articulo}</h2><span class="text-lg opacity-30 font-normal">(${barcode})</span>`;
             });
         }
         document.querySelector("#barcode-input").value = barcode;
@@ -603,7 +642,8 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   document.addEventListener("DOMContentLoaded", (event) => {
     if (localStorage.getItem("truckSelect")) {
       DOM.truckStop.classList.remove("hidden");
-      DOM.truckStopWarehouse.textContent = localStorage.getItem("truckSelectName");
+      DOM.truckStopWarehouse.textContent =
+        localStorage.getItem("truckSelectName");
     }
     const select = DOM.quantitySelect;
 
@@ -616,6 +656,10 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     })
       .then((response) => response.json())
       .then((data) => {
+        if (data.message) {
+          document.getElementById("errNoServer").classList.remove("hidden");
+          return;
+        }
         data.forEach((item) => {
           const option1 = document.createElement("option");
           option1.value = item.id;
@@ -640,8 +684,15 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           } else {
             const sendButton = DOM.sendButton;
             sendButton.classList.remove("rounded-l-md", "text-center");
-            sendButton.classList.add("bg-slate-600/5", "rounded-xl", "text-left");
-            DOM.sendButton.innerHTML = "<span class='beforesvg text-white/30'>Enviando desde <span class='text-white font-bold'>" + center.centro + "</span></span>";
+            sendButton.classList.add(
+              "bg-slate-600/5",
+              "rounded-xl",
+              "text-left"
+            );
+            DOM.sendButton.innerHTML =
+              "<span class='beforesvg text-white/30'>Enviando desde <span class='text-white font-bold'>" +
+              center.centro +
+              "</span></span>";
             localStorage.setItem("mode", "1");
             mode1();
           }
@@ -676,16 +727,24 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
             const center = data.find((item) => item.id == savedQuantity);
             const sendButton = DOM.sendButton;
             const receiveButton = DOM.receiveButton;
-            
+
             if (center.ismain) {
               receiveButton.classList.remove("hidden");
-              sendButton.classList.remove("rounded-xl", "bg-slate-600/5", "text-left");
+              sendButton.classList.remove(
+                "rounded-xl",
+                "bg-slate-600/5",
+                "text-left"
+              );
               sendButton.classList.add("rounded-l-md", "text-center");
               sendButton.innerHTML = "Enviar";
             } else {
               receiveButton.classList.add("hidden");
               sendButton.classList.remove("rounded-l-md", "text-center");
-              sendButton.classList.add("rounded-xl", "bg-slate-600/5", "text-left");
+              sendButton.classList.add(
+                "rounded-xl",
+                "bg-slate-600/5",
+                "text-left"
+              );
               sendButton.innerHTML = `<span class='beforesvg text-white/30'>Enviando desde <span class='text-white font-bold'>${center.centro}</span></span>`;
               localStorage.setItem("mode", "1");
               mode1();
@@ -707,7 +766,10 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
 
     truckSelect.addEventListener("change", (event) => {
       localStorage.setItem("truckSelect", event.target.value);
-      localStorage.setItem("truckSelectName", event.target.selectedOptions[0].textContent);
+      localStorage.setItem(
+        "truckSelectName",
+        event.target.selectedOptions[0].textContent
+      );
     });
 
     if (!localStorage.getItem("selectedQuantity")) {
@@ -755,7 +817,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     const sendButton = DOM.sendButton;
     const receiveButton = DOM.receiveButton;
     const truckStop = DOM.truckStop;
-  
+
     sendButton.classList.remove("bg-slate-700");
     sendButton.classList.add("bg-green-500");
     receiveButton.classList.remove("bg-green-500");
@@ -763,19 +825,19 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     truckStop.classList.add("hidden");
     localStorage.removeItem("truckSelect");
   }
-  
+
   function mode2() {
     const sendButton = DOM.sendButton;
     const receiveButton = DOM.receiveButton;
     const truckStop = DOM.truckStop;
     const truckSelectModal = DOM.truckSelectModal;
     const truckStopWarehouse = DOM.truckStopWarehouse;
-  
+
     receiveButton.classList.remove("bg-slate-700");
     receiveButton.classList.add("bg-green-500");
     sendButton.classList.remove("bg-green-500");
     sendButton.classList.add("bg-slate-700");
-  
+
     if (localStorage.getItem("truckSelect") == null) {
       truckSelectModal.classList.remove("hidden");
     } else {
@@ -883,14 +945,14 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     document.getElementById(id).classList.remove("hidden");
   }
 
-    function closemodal(id, id2) {
+  function closemodal(id, id2) {
     const receiveModal = document.getElementById("receiveModal");
     const notification = document.getElementById("notification");
     const modal = document.getElementById(id);
     const pane = document.getElementById(id2);
-  
+
     receiveModal.classList.remove("bg-orange-400");
-  
+
     if (id === "centerSelectModal") {
       const selectedQuantity = localStorage.getItem("selectedQuantity");
       if (!selectedQuantity) {
@@ -904,18 +966,18 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
         return;
       }
     }
-  
+
     pane.classList.remove("slideup");
     pane.classList.add("slideout");
-  
+
     modal.classList.remove("fadein");
     modal.classList.add("fadeout");
-  
+
     setTimeout(() => {
       modal.classList.add("hidden");
       pane.classList.remove("slideout");
       pane.classList.add("slideup");
-  
+
       modal.classList.remove("fadeout");
       modal.classList.add("fadein");
     }, 300);
@@ -947,10 +1009,12 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   function closeTruckModal() {
     if (localStorage.getItem("truckSelect")) {
       document.getElementById("truckStop").classList.remove("hidden");
-      document.getElementById("truckStopWarehouse").textContent = localStorage.getItem("truckSelectName");
-      closemodal('truckSelectModal', 'truckPane');
+      document.getElementById("truckStopWarehouse").textContent =
+        localStorage.getItem("truckSelectName");
+      closemodal("truckSelectModal", "truckPane");
     } else {
-      document.getElementById("notification").innerHTML = "Por favor selecciona un centro.";
+      document.getElementById("notification").innerHTML =
+        "Por favor selecciona un centro.";
       document.getElementById("notification").classList.add("bg-red-400");
       document.getElementById("notification").classList.remove("hidden");
       setTimeout(() => {
