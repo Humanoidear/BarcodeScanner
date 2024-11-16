@@ -57,7 +57,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
         </div>
         <div
           onclick="openmodal('centerSelectModal')"
-          class="p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-center text-white relative"
+          class="h-full aspect-square p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-center text-white flex items-center justify-center relative"
         >
           <svg
             class="w-10 h-10 scale-75"
@@ -466,6 +466,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     receiveModal: document.getElementById("receiveModal"),
     receiveList: document.getElementById("receiveList"),
     receiveNum: document.getElementById("receiveNum"),
+    receivePane: document.getElementById("receivePane"),
     notification: document.getElementById("notification"),
     loginSubmit: document.getElementById("loginSubmit"),
     loginError: document.getElementById("loginError"),
@@ -528,7 +529,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
             .then((data) => {
               if (data.length == 0) {
                 DOM.sendForm.classList.add("hidden");
-                DOM.barcodeResult.innerHTML = `<h2 class="mb-0 w-full text-3xl font-bold">No se ha encontrado el artículo</h2><span class="w-full text-lg opacity-30 font-normal">( ${barcode} )</span><br><p class="w-full">Verifique que se ha escaneado correctamente, o elija un artículo de la lista.</p>`;
+                DOM.barcodeResult.innerHTML = `<h2 class="mb-0 w-full text-3xl text-left font-bold">No se ha encontrado el artículo</h2><span class="w-full text-lg text-left opacity-30 font-normal">( ${barcode} )</span><br><p class="w-full text-left">Verifique que se ha escaneado correctamente, o elija un artículo de la lista.</p>`;
                 document
                   .getElementById("errNotFound-send-form")
                   .classList.remove("hidden");
@@ -576,6 +577,11 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
               const receiveList = DOM.receiveList;
               receiveList.innerHTML = "";
 
+              if (data.message) {
+                receiveList.innerHTML = `<h2 class="mb-0 text-3xl text-left font-bold">No se ha encontrado el código ${barcode} asociado a este palet.</h2><br><p class="beforesvg mt-3 text-white/30">Verifique que se ha escaneado correctamente e inténtelo de nuevo.</p></div>`;
+                return;
+              }
+
               const onRouteData = data.data.filter(
                 (item) => item.fulfilled == 0
               );
@@ -609,8 +615,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
                   </p>
                 `;
               } else {
-                DOM.receiveModal.classList.add("bg-orange-400");
-                div.innerHTML += `<div class="bg-slate-800 rounded-2xl px-5 py-3 text-white text-lg flex flex-col items-center justify-between gap-3">Este palet de ${data.product} (${data.warehouse}) no ha sido contabilizado, ¿quieres recibirlo de todos modos?
+                div.innerHTML += `<div class="bg-slate-700 border-2 border-red-500/70 rounded-2xl px-5 py-3 text-white text-lg flex flex-col items-center justify-between gap-3">Este palet de ${data.product} (${data.warehouse}) no ha sido contabilizado, ¿quieres recibirlo de todos modos?
                 <br><button onclick="simulateSend('${barcode}');" class="w-full h-14 rounded-2xl bg-green-400 hover:bg-green-500 font-bold flex flex-col items-center justify-center mt-3">Recibir de todos modos</button></div>`;
               }
             });
@@ -679,7 +684,6 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           // If the center in localStorage coincides with a center in the dropdown which has isMain "true", show "receive" button
           const center = data.find((item) => item.id == savedQuantity);
           if (center.ismain) {
-            console.log("show receive");
             DOM.receiveButton.classList.remove("hidden");
           } else {
             const sendButton = DOM.sendButton;
@@ -690,7 +694,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
               "text-left"
             );
             DOM.sendButton.innerHTML =
-              "<span class='beforesvg text-white/30'>Enviando desde <span class='text-white font-bold'>" +
+              "<span class='beforesvg text-white/30 text-lg'>Enviando desde <span class='text-white font-bold'>" +
               center.centro +
               "</span></span>";
             localStorage.setItem("mode", "1");
@@ -745,7 +749,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
                 "bg-slate-600/5",
                 "text-left"
               );
-              sendButton.innerHTML = `<span class='beforesvg text-white/30'>Enviando desde <span class='text-white font-bold'>${center.centro}</span></span>`;
+              sendButton.innerHTML = `<span class='beforesvg text-white/30 text-lg'>Enviando desde <span class='text-white font-bold'>${center.centro}</span></span>`;
               localStorage.setItem("mode", "1");
               mode1();
             }
@@ -935,8 +939,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
         if (data.message == 0) {
           window.location.href = window.location.pathname;
         } else {
-          closemodal("receiveModal", "receivePane");
-          closemodal("comboSelectModal", "selectQuestion");
+          window.location.href = window.location.pathname;
         }
       });
   }
@@ -950,8 +953,6 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     const notification = document.getElementById("notification");
     const modal = document.getElementById(id);
     const pane = document.getElementById(id2);
-
-    receiveModal.classList.remove("bg-orange-400");
 
     if (id === "centerSelectModal") {
       const selectedQuantity = localStorage.getItem("selectedQuantity");
@@ -1001,7 +1002,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       .then((response) => response.json())
       .then((data) => {
         if (data.status == "success") {
-          closemodal("receiveModal", "receivePane");
+          window.location.href = window.location.pathname;
         }
       });
   }

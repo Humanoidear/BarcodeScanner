@@ -65,13 +65,13 @@ app.post('/simular-palet', async (req, res) => {
         const isValid = await verifyCode(form.code);
         if (isValid) {
             await db.none('INSERT INTO reparto (lectura, timestamp, almacen, fulfilled, timestamp_recepcion, issimulated) VALUES ($1, NOW(), $2, 1, NOW(), true)', [form.barcode, form.almacen]);
-            res.json({status: 'success'});
+            res.json({ status: 'success' });
         } else {
             res.redirect(redirectURL + '?message=Código de verificación inválido o expirado');
         }
     } catch (error) {
         console.error('Error processing request:', error);
-        res.json({status: 'error'});
+        res.json({ status: 'error' });
     }
 });
 
@@ -592,7 +592,7 @@ app.post('/afegir-palet-manual', async (req, res) => {
             const articulo = await db.oneOrNone('SELECT lectura FROM articulos WHERE id = $1', [form.product]);
             if (articulo) {
                 for (let i = 0; i < form.quantity; i++) {
-                    await db.none('INSERT INTO reparto (lectura, timestamp, almacen) VALUES ($1, NOW(), $2)', [articulo.lectura, form.warehouse]);
+                    await db.none('INSERT INTO reparto (lectura, timestamp, almacen, fulfilled, timestamp_recepcion, issimulated) VALUES ($1, NOW(), $2, 1, NOW(), true)', [articulo.lectura, form.warehouse]);
                 }
                 res.redirect(redirectURL + '/admin?message=Palets añadidos correctamente');
             } else {
@@ -609,17 +609,36 @@ app.post('/afegir-palet-manual', async (req, res) => {
 
 app.post('/esborrar-palet-manual', async (req, res) => {
     const form = req.body;
-    try {
-        const isValid = await verifyCodeAdmin(form.code);
-        if (isValid) {
-            await db.none('DELETE FROM reparto WHERE id = $1', [form.delete]);
-            res.redirect(redirectURL + '/admin?message=Palet eliminado correctamente');
-        } else {
-            res.redirect(redirectURL + '/admin?message=Código de verificación inválido o expirado');
+    if (form.quantity != null && form.quantity !== "") {
+        try {
+            const isValid = await verifyCodeAdmin(form.code);
+            if (isValid) {
+                for (let i = 0; i < form.quantity; i++) {
+                    await db.none(`
+                        DELETE FROM reparto 
+                        WHERE id = (
+                            SELECT id 
+                            FROM reparto 
+                            WHERE lectura = $1 
+                            ORDER BY id ASC 
+                            LIMIT 1
+                        )
+                    `, [form.delete]);
+                }
+                if (form.quantity == 1) {
+                    res.redirect(redirectURL + '/admin?message=Palet eliminado correctamente');
+                } else {
+                    res.redirect(redirectURL + '/admin?message=Palets eliminados correctamente');
+                }
+            } else {
+                res.redirect(redirectURL + '/admin?message=Código de verificación inválido o expirado');
+            }
+        } catch (error) {
+            console.error('Error processing request:', error);
+            res.redirect(redirectURL + '/admin?message=Error al procesar la solicitud');
         }
-    } catch (error) {
-        console.error('Error processing request:', error);
-        res.redirect(redirectURL + '/admin?message=Error al procesar la solicitud');
+    } else {
+        res.redirect(redirectURL + '/admin?message=Selecciona un palet primero');
     }
 });
 

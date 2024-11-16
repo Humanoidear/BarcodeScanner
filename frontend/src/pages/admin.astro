@@ -409,9 +409,13 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           enctype="application/x-www-form-urlencoded"
         >
           <select
-            id="deleteProduct"
+            id="deleteProductPalet"
             name="delete"
-            class="paletList w-full border"></select>
+            class="productList w-full border">
+          <option value="" disabled selected>Selecciona un producto</option>
+          </select>
+          <select id="deleteProductNumber" name="quantity" class="w-full border rounded-md hidden"
+          ></select>
           <button
             type="submit"
             class="w-full py-2 bg-red-500 text-white rounded-t-md rounded-b-2xl"
@@ -509,30 +513,6 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     form.appendChild(input);
   });
 
-  fetch(`${BACKEND_URL}/filtrar`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: `code=${localStorage.getItem("adminlogin")}`,
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      data.forEach((item) => {
-        console.log(item);
-        // Get all elements with the class warehouseList and add the new option
-        document.querySelectorAll(".paletList").forEach((select) => {
-          const option = document.createElement("option");
-          option.value = item.id;
-          option.text = item.lectura_nombre + " (" + item.almacen + ")";
-          select.appendChild(option);
-        });
-      });
-    })
-    .catch((error) => {
-      console.error("Error fetching data for dropdowns:", error);
-    });
-
   fetch(`${BACKEND_URL}/afegir-article`, {
     method: "GET",
     headers: {
@@ -546,7 +526,11 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
         console.log(item);
         document.querySelectorAll(".productList").forEach((select) => {
           const option = document.createElement("option");
-          option.value = item.id;
+          if (select.id === "deleteProductPalet") {
+            option.value = item.lectura;
+          } else {
+            option.value = item.id;
+          }
           option.text = item.articulo + " (" + item.lectura + ")";
           select.appendChild(option);
         });
@@ -865,6 +849,44 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       document.getElementById(id2).classList.add("slideup");
     }, 300);
   }
+
+    document.getElementById("deleteProductPalet").addEventListener("change", async (event) => {
+    const selectedProduct = event.target.value;
+    const product = document.getElementById("deleteProductNumber");
+    document.getElementById("deleteProductNumber").classList.remove("hidden");
+    product.innerHTML = "";
+  
+    try {
+      const response = await fetch(`${BACKEND_URL}/filtrar`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `code=${localStorage.getItem("adminlogin")}`,
+      });
+  
+      const data = await response.json();
+      let cnt = 1;
+  
+      data.forEach((item) => {
+        if (item.lectura == selectedProduct && (item.fulfilled == 0 || item.fulfilled == 1)) {
+          const option = document.createElement("option");
+          option.value = cnt;
+          option.text = cnt;
+          product.appendChild(option);
+          cnt++;
+        }
+      });
+      if (product.innerHTML === "") {
+        const option = document.createElement("option");
+        option.value = "";
+        option.text = "No hay palets para eliminar";
+        product.appendChild(option);
+      }
+    } catch (error) {
+      console.error("Error fetching data for dropdowns:", error);
+    }
+  });
 </script>
 
 <style is:global>
