@@ -82,7 +82,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       <select
         id="product"
         name="product"
-        class="block w-full px-3 py-4 pt-5 mb-1 bg-slate-300 rounded-2xl xl:rounded-l-2xl xl:rounded-r-md border-none"
+        class="productList block w-full px-3 py-4 pt-5 mb-1 bg-slate-300 rounded-2xl xl:rounded-l-2xl xl:rounded-r-md border-none"
       >
         <option value="">Todos</option>
       </select>
@@ -95,7 +95,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       <select
         id="warehouse"
         name="warehouse"
-        class="block w-full px-3 py-4 pt-5 mb-1 bg-slate-300 rounded-2xl xl:rounded-md border-none"
+        class="warehouseList block w-full px-3 py-4 pt-5 mb-1 bg-slate-300 rounded-2xl xl:rounded-md border-none"
       >
         <option value="">Todos</option>
       </select>
@@ -114,6 +114,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
         <option value="">Todos</option>
         <option value="0">En ruta</option>
         <option value="1">Recibido</option>
+        <option value="2">Enviado</option>
       </select>
     </div>
     <div class="w-full flex flex-col items-start">
@@ -308,7 +309,8 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           method="post"
           enctype="application/x-www-form-urlencoded"
         >
-          <select id="delete" name="delete" class="w-full border"></select>
+          <select id="delete" name="delete" class="warehouseList w-full border"
+          ></select>
           <button
             type="submit"
             class="w-full py-2 bg-red-500 text-white rounded-t-md rounded-b-2xl"
@@ -352,7 +354,67 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           method="post"
           enctype="application/x-www-form-urlencoded"
         >
-          <select id="deleteProduct" name="delete" class="w-full border"
+          <select
+            id="deleteProduct"
+            name="delete"
+            class="productList w-full border"></select>
+          <button
+            type="submit"
+            class="w-full py-2 bg-red-500 text-white rounded-t-md rounded-b-2xl"
+            >Eliminar</button
+          >
+        </form>
+        <hr class="w-full border-white/10 my-6" />
+        <h3 class="mt-6 mb-3 text-xl text-white font-semibold">
+          Añadir palet manualmente
+        </h3>
+        <form
+          action={`${BACKEND_URL}/afegir-palet-manual`}
+          method="post"
+          enctype="application/x-www-form-urlencoded"
+        >
+          <select
+            id="warehouse"
+            name="warehouse"
+            class="warehouseList w-full border"
+          >
+            <option value="" disabled selected>Selecciona un almacén</option>
+          </select>
+          <select
+            id="product"
+            name="product"
+            class="productList w-full border rounded-md"
+          >
+            <option value="" disabled selected>Selecciona un producto</option>
+          </select>
+          <input
+            type="number"
+            id="quantity"
+            name="quantity"
+            class="w-full border rounded-md"
+            placeholder="cantidad"
+          />
+          <button
+            type="submit"
+            class="w-full py-2 bg-green-500 text-white rounded-t-md rounded-b-2xl"
+            >Añadir</button
+          >
+        </form>
+        <h3 class="mt-6 mb-3 text-xl text-white font-semibold">
+          Eliminar palet manualmente
+        </h3>
+        <form
+          action={`${BACKEND_URL}/esborrar-palet-manual`}
+          method="post"
+          enctype="application/x-www-form-urlencoded"
+        >
+          <select
+            id="deleteProductPalet"
+            name="delete"
+            class="productList w-full border">
+          <option value="" disabled selected>Selecciona un producto</option>
+          </select>
+          <select id="deleteProductNumber" name="quantity" class="w-full border rounded-md hidden"
           ></select>
           <button
             type="submit"
@@ -369,8 +431,6 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
   const BACKEND_URL = document.getElementById("BACKEND_URL").innerText;
   // Fetch data for the quantity select element
   document.addEventListener("DOMContentLoaded", (event) => {
-    const deleteSelect = document.getElementById("delete");
-
     // Fetch data for the dropdowns
     fetch(`${BACKEND_URL}/afegir-centre`, {
       method: "GET",
@@ -381,22 +441,20 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       .then((response) => response.json())
       .then((data) => {
         data.forEach((item) => {
-          const deleteOption = document.createElement("option");
-          deleteOption.value = item.id;
-          deleteOption.text = item.centro;
-          deleteSelect.appendChild(deleteOption);
+          // Get all elements with the class warehouseList and add the new option
+          document.querySelectorAll(".warehouseList").forEach((select) => {
+            const option = document.createElement("option");
+            option.value = item.id;
+            option.text = item.centro;
+            select.appendChild(option);
+          });
         });
-
-        const savedDelete = localStorage.getItem("selectedDelete");
-        if (savedDelete) {
-          deleteSelect.value = savedDelete;
-        }
       })
       .catch((error) => {
         console.error("Error fetching data for dropdowns:", error);
       });
 
-    deleteSelect.addEventListener("change", (event) => {
+    document.getElementById("delete").addEventListener("change", (event) => {
       localStorage.setItem("selectedDelete", event.target.value);
     });
 
@@ -455,26 +513,6 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     form.appendChild(input);
   });
 
-  fetch(`${BACKEND_URL}/afegir-centre`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      data.forEach((item) => {
-        const select = document.getElementById("warehouse");
-        const option1 = document.createElement("option");
-        option1.value = item.id;
-        option1.text = item.centro;
-        select.appendChild(option1);
-      });
-    })
-    .catch((error) => {
-      console.error("Error fetching data for dropdowns:", error);
-    });
-
   fetch(`${BACKEND_URL}/afegir-article`, {
     method: "GET",
     headers: {
@@ -484,17 +522,18 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
     .then((response) => response.json())
     .then((data) => {
       data.forEach((item) => {
-        const select = document.getElementById("product");
-        const option1 = document.createElement("option");
-        option1.value = item.id;
-        option1.text = item.articulo + " (" + item.lectura + ")";
-        select.appendChild(option1);
-
-        const select2 = document.getElementById("deleteProduct");
-        const option2 = document.createElement("option");
-        option2.value = item.id;
-        option2.text = item.articulo + " (" + item.lectura + ")";
-        select2.appendChild(option2);
+        // Get all elements with the class productList
+        console.log(item);
+        document.querySelectorAll(".productList").forEach((select) => {
+          const option = document.createElement("option");
+          if (select.id === "deleteProductPalet") {
+            option.value = item.lectura;
+          } else {
+            option.value = item.id;
+          }
+          option.text = item.articulo + " (" + item.lectura + ")";
+          select.appendChild(option);
+        });
       });
     })
     .catch((error) => {
@@ -535,13 +574,17 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       // Group the results by warehouse
       const groupedData = data.reduce((acc, item) => {
         if (!acc[item.almacen]) {
-          acc[item.almacen] = { onRoute: 0, arrived: 0, total: 0 };
+          acc[item.almacen] = { onRoute: 0, arrived: 0, left: 0, total: 0 };
         }
-        acc[item.almacen].total += 1;
+        if (item.fulfilled === 0 || item.fulfilled === 1) {
+          acc[item.almacen].total += 1;
+        }
         if (item.fulfilled === 0) {
           acc[item.almacen].onRoute += 1;
-        } else {
+        } else if (item.fulfilled === 1) {
           acc[item.almacen].arrived += 1;
+        } else {
+          acc[item.almacen].left += 1;
         }
         return acc;
       }, {});
@@ -551,10 +594,11 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
         (acc, warehouse) => {
           acc.onRoute += warehouse.onRoute;
           acc.arrived += warehouse.arrived;
+          acc.left += warehouse.left;
           acc.total += warehouse.total;
           return acc;
         },
-        { onRoute: 0, arrived: 0, total: 0 }
+        { onRoute: 0, arrived: 0, left: 0, total: 0 }
       );
 
       // Display the results
@@ -586,7 +630,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
             <div class="mt-1 w-full p-6 rounded-t-2xl rounded-md bg-white/5 text-white">
                 <div class="mb-3 flex flex-row items-center justify-between gap-3">
                     <h3 class="text-xl font-bold mb-2">Totales generales</h3>
-                    <p><span class="opacity-60">${overallTotals.total}</span> <span class="opacity-30">Palets totales</span></p>
+                    <p><span class="opacity-60">${status === "" || status === "0" || status === "1" ? overallTotals.total : ""}</span>${status === "" || status === "0" || status === "1" ? " <span class='opacity-30'>Palets totales</span>" : ""}</p>
                 </div>
                 <div class="flex flex-row items-center gap-6">
                     ${
@@ -600,6 +644,13 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
                       status === "" || status === "1"
                         ? `
                     <p class="w-full flex flex-col items-center gap-1"><svg class="w-16 h-16" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 2h14v4h6v16H2V2zm18 6h-4v2h2v2h-2v2h2v2h-2v2h2v2h2V8zm-6-4H4v16h2v-2h6v2h2V4zM6 6h2v2H6V6zm6 0h-2v2h2V6zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2z" fill="currentColor"/> </svg> <span class="flex flex-row gap-3"><span class="text-5xl font-extrabold">${overallTotals.arrived}</span><span class="flex flex-col items-start"><span class="opacity-60">Palets</span><span>recibidos</span></span></p>
+                    `
+                        : ""
+                    }
+                    ${
+                      status === "2"
+                        ? `
+                    <p class="w-full flex flex-col items-center gap-1"><svg class="w-16 h-16" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M17 4H7v2H5v2H3v12h4v-2h10v2h4V8h-2V6h-2V4zm0 2v2h2v2H5V8h2V6h10zm2 10H5v-4h14v4zm-2-3h-2v2h2v-2zM7 13h2v2H7v-2z" fill="currentColor"/> </svg> <span class="flex flex-row gap-3"><span class="text-5xl font-extrabold">${overallTotals.left}</span><span class="flex flex-col items-start"><span class="opacity-60">Palets</span><span>enviados</span></span></p>
                     `
                         : ""
                     }
@@ -617,7 +668,7 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
             <div class="mt-1 w-full p-6 rounded-md bg-white/5 text-white">
                 <div class="mb-3 flex flex-row items-center justify-between gap-3">
                     <h3 class="text-xl font-bold mb-2">${warehouse}</h3>
-                    <p><span class="opacity-60">${counts.total}</span> <span class="opacity-30">Palets totales</span></p>
+                    <p><span class="opacity-60">${status === "" || status === "0" || status === "1" ? overallTotals.total : ""}</span>${status === "" || status === "0" || status === "1" ? " <span class='opacity-30'>Palets totales</span>" : ""}</p>
                 </div>
                 <div class="flex flex-row items-center gap-6">
                     ${
@@ -631,6 +682,13 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
                       status === "" || status === "1"
                         ? `
                     <p class="w-full flex flex-col items-center gap-1"><svg class="w-16 h-16" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 2h14v4h6v16H2V2zm18 6h-4v2h2v2h-2v2h2v2h-2v2h2v2h2V8zm-6-4H4v16h2v-2h6v2h2V4zM6 6h2v2H6V6zm6 0h-2v2h2V6zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2zm-6 4h2v2H6v-2zm6 0h-2v2h2v-2z" fill="currentColor"/> </svg> <span class="flex flex-row gap-3"><span class="text-5xl font-extrabold">${counts.arrived}</span><span class="flex flex-col items-start"><span class="opacity-60">Palets</span><span>recibidos</span></span></p>
+                    `
+                        : ""
+                    }
+                    ${
+                      status === "2"
+                        ? `
+                    <p class="w-full flex flex-col items-center gap-1"><svg class="w-16 h-16" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M17 4H7v2H5v2H3v12h4v-2h10v2h4V8h-2V6h-2V4zm0 2v2h2v2H5V8h2V6h10zm2 10H5v-4h14v4zm-2-3h-2v2h2v-2zM7 13h2v2H7v-2z" fill="currentColor"/> </svg> <span class="flex flex-row gap-3"><span class="text-5xl font-extrabold">${counts.left}</span><span class="flex flex-col items-start"><span class="opacity-60">Palets</span><span>enviados</span></span></p>
                     `
                         : ""
                     }
@@ -745,7 +803,11 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
           row.timestamp === 0
             ? "Error"
             : new Date(row.timestamp).toLocaleString().replace(",", " |"),
-          row.fulfilled === 0 ? "En ruta" : "Entregado",
+          row.fulfilled === 0
+            ? "En ruta"
+            : row.fulfilled === 1
+              ? "Entregado"
+              : "Enviado",
           row.timestamp_recepcion == 0
             ? "No ha llegado"
             : new Date(row.timestamp_recepcion)
@@ -787,6 +849,44 @@ const BACKEND_URL = import.meta.env.BACKEND_URL;
       document.getElementById(id2).classList.add("slideup");
     }, 300);
   }
+
+    document.getElementById("deleteProductPalet").addEventListener("change", async (event) => {
+    const selectedProduct = event.target.value;
+    const product = document.getElementById("deleteProductNumber");
+    document.getElementById("deleteProductNumber").classList.remove("hidden");
+    product.innerHTML = "";
+  
+    try {
+      const response = await fetch(`${BACKEND_URL}/filtrar`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `code=${localStorage.getItem("adminlogin")}`,
+      });
+  
+      const data = await response.json();
+      let cnt = 1;
+  
+      data.forEach((item) => {
+        if (item.lectura == selectedProduct && (item.fulfilled == 0 || item.fulfilled == 1)) {
+          const option = document.createElement("option");
+          option.value = cnt;
+          option.text = cnt;
+          product.appendChild(option);
+          cnt++;
+        }
+      });
+      if (product.innerHTML === "") {
+        const option = document.createElement("option");
+        option.value = "";
+        option.text = "No hay palets para eliminar";
+        product.appendChild(option);
+      }
+    } catch (error) {
+      console.error("Error fetching data for dropdowns:", error);
+    }
+  });
 </script>
 
 <style is:global>
