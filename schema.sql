@@ -61,7 +61,8 @@ ALTER SEQUENCE public.articulos_id_seq OWNED BY public.articulos.id;
 
 CREATE TABLE public.centro (
     id integer NOT NULL,
-    centro character varying(255) NOT NULL
+    centro character varying(255) NOT NULL,
+    ismain boolean DEFAULT false
 );
 
 
@@ -123,7 +124,8 @@ CREATE TABLE public.reparto (
     "timestamp" character varying(255),
     almacen integer,
     fulfilled integer DEFAULT 0,
-    timestamp_recepcion character varying(255) DEFAULT 0
+    timestamp_recepcion character varying(255) DEFAULT 0,
+    issimulated boolean DEFAULT false
 );
 
 
