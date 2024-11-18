@@ -1,4 +1,7 @@
 const express = require('express');
+const fs = require('fs');
+const https = require('https');
+const helmet = require('helmet');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const pgp = require('pg-promise')();
@@ -11,11 +14,24 @@ const db = pgp({ connectionString: process.env.DATABASE_URL });
 const redirectURL = process.env.REDIRECT_URL;
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 443;
+
+https.createServer({
+    cert: fs.readFileSync('danascan.cert'),
+    key: fs.readFileSync('danascan.key')
+}, app).listen(port, function() {
+    console.log(`Servidor https corriendo en el puerto ${port}`);
+});
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
+app.use(helmet());
+app.use(helmet.hsts({
+    maxAge: 300,
+    includeSubDomains: true,
+    preload: true
+}));
 
 app.post('/upload', async (req, res) => {
     const form = req.body;
@@ -36,26 +52,26 @@ app.post('/upload', async (req, res) => {
                         WHERE id = (
                             SELECT id 
                             FROM reparto 
-                            WHERE lectura = $1 
+                            WHERE lectura = $1
                             AND fulfilled = 1
                             ORDER BY id ASC 
                             LIMIT 1
                         )
                     `, [form.barcode]);
-                    res.redirect(redirectURL + '?message=Palet eliminado enviado a reparto');
+                    res.redirect(redirectURL + '/?message=Palet eliminado enviado a reparto');
                 } else {
-                    res.redirect(redirectURL + '?message=No se encuentra este palet en la base de datos, simula un palet recibido para enviar');
+                    res.redirect(redirectURL + '/?message=No se encuentra este palet en la base de datos, simula un palet recibido para enviar');
                 }
             } else {
                 await db.none('INSERT INTO reparto (lectura, timestamp, almacen) VALUES ($1, $2, $3)', [form.barcode, form.timestamp, form.quantity]);
-                res.redirect(redirectURL + '?message=Palet recibido y almacenado en la base de datos');
+                res.redirect(redirectURL + '/?message=Palet recibido y almacenado en la base de datos');
             }
         } else {
-            res.redirect(redirectURL + '?message=Código de verificación inválido o expirado');
+            res.redirect(redirectURL + '/?message=Código de verificación inválido o expirado');
         }
     } catch (error) {
         console.error('Error processing request:', error);
-        res.redirect(redirectURL + '?message=Error procesando la solicitud');
+        res.redirect(redirectURL + '/?message=Error procesando la solicitud');
     }
 });
 
@@ -67,7 +83,7 @@ app.post('/simular-palet', async (req, res) => {
             await db.none('INSERT INTO reparto (lectura, timestamp, almacen, fulfilled, timestamp_recepcion, issimulated) VALUES ($1, NOW(), $2, 1, NOW(), true)', [form.barcode, form.almacen]);
             res.json({ status: 'success' });
         } else {
-            res.redirect(redirectURL + '?message=Código de verificación inválido o expirado');
+            res.redirect(redirectURL + '/?message=Código de verificación inválido o expirado');
         }
     } catch (error) {
         console.error('Error processing request:', error);
@@ -305,7 +321,7 @@ app.post('/acceptar-palet', async (req, res) => {
             const row = await db.oneOrNone(`
                 SELECT id 
                 FROM reparto 
-                WHERE almacen = $1 
+                WHERE almacen = $1
                 AND lectura = $2
                 AND fulfilled = 0
                 ORDER BY id ASC 
@@ -420,12 +436,12 @@ app.post('/filtrar', (req, res) => {
                     WHERE ($1::int IS NULL OR a.id = $1::int)
                     AND (
                         $2::int IS NULL 
-                        OR r.almacen = $2::int 
+                        OR r.almacen = $2::int
                         OR ($2::int IS NULL AND r.fulfilled IN (0, 1))
                     )
                     AND (
                         $3::int IS NULL 
-                        OR (r.fulfilled = $3::int) 
+                        OR (r.fulfilled = $3::int)
                         OR ($3::int IS NULL AND r.fulfilled IN (0, 1))
                     )
                     AND ($4::date IS NULL OR r.timestamp >= $4)
@@ -643,6 +659,6 @@ app.post('/esborrar-palet-manual', async (req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+//app.listen(port, () => {
+//    console.log(`Server is running on http://localhost:${port}`);
+//});
